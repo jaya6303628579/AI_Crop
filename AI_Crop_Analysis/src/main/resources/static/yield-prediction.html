@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Yield Predictions - AI Crop Advisor</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/theme.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+    <style>
+        :root {
+            --primary: #2ecc71;
+            --secondary: #3498db;
+            --dark: #2c3e50;
+        }
+
+        body {
+            background: #f5f7fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .navbar-custom {
+            background: white;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .sidebar {
+            background: white;
+            min-height: calc(100vh - 56px);
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.05);
+            padding: 20px 0;
+        }
+
+        .sidebar .nav-link {
+            color: #666;
+            padding: 15px 25px;
+            border-left: 3px solid transparent;
+        }
+
+        .sidebar .nav-link.active {
+            background: #f0f9f4;
+            color: var(--primary);
+            border-left-color: var(--primary);
+        }
+
+        .main-content {
+            padding: 30px;
+        }
+
+        .prediction-card {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            margin-bottom: 20px;
+        }
+
+        .crop-header {
+            color: var(--dark);
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+
+        .metric-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .metric-box {
+            background: linear-gradient(135deg, #f5f7fa 0%, #e8eef5 100%);
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            border-left: 3px solid var(--primary);
+        }
+
+        .metric-value {
+            color: var(--primary);
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .metric-label {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 400px;
+            margin: 20px 0;
+        }
+
+        .risk-section {
+            background: #fff8f0;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+            border-left: 4px solid #f39c12;
+        }
+
+        .risk-title {
+            color: var(--dark);
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .risk-assessment {
+            color: #555;
+            line-height: 1.6;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+        }
+
+        .empty-state i {
+            font-size: 4rem;
+            color: #e0e0e0;
+            margin-bottom: 20px;
+        }
+
+        .empty-state h3 {
+            color: var(--dark);
+            margin-bottom: 10px;
+        }
+
+        .empty-state p {
+            color: #999;
+            margin-bottom: 20px;
+        }
+
+        .btn-action {
+            background: linear-gradient(135deg, var(--primary) 0%, #27ae60 100%);
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        .btn-action:hover {
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(46, 204, 113, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-light navbar-custom sticky-top">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="dashboard.html">
+                <i class="fas fa-leaf"></i> AI Crop Advisor
+            </a>
+            <div class="ms-auto">
+                <a class="nav-link" href="#" id="logoutBtn">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <nav class="col-md-3 col-lg-2 sidebar">
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link" href="dashboard.html">
+                            <i class="fas fa-home"></i> Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="soil-analysis.html">
+                            <i class="fas fa-image"></i> Soil Analysis
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="crop-recommendation.html">
+                            <i class="fas fa-seedling"></i> Recommendations
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="crop-planting.html">
+                            <i class="fas fa-leaf"></i> My Plantings
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="yield-prediction.html">
+                            <i class="fas fa-chart-line"></i> Yield Predictions
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="alerts.html">
+                            <i class="fas fa-bell"></i> Alerts
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+
+            <!-- Main Content -->
+            <main class="col-md-9 col-lg-10 main-content">
+                <h1 class="mb-4">Yield Predictions</h1>
+
+                <div id="predictionsContainer"></div>
+            </main>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const API_URL = '/api';
+        const token = localStorage.getItem('token');
+
+        if (!token) {
+            window.location.href = 'login.html';
+        }
+
+        document.getElementById('logoutBtn').addEventListener('click', (e) => {
+            e.preventDefault();
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            window.location.href = 'login.html';
+        });
+
+        async function loadPredictions() {
+            try {
+                const response = await fetch(`${API_URL}/plantings`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    const plantings = data.data.filter(p => ['SOWN', 'MONITORING'].includes(p.status));
+
+                    if (plantings.length === 0) {
+                        showEmptyState();
+                    } else {
+                        displayPredictions(plantings);
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading predictions:', error);
+            }
+        }
+
+        function showEmptyState() {
+            document.getElementById('predictionsContainer').innerHTML = `
+                <div class="empty-state">
+                    <i class="fas fa-chart-line"></i>
+                    <h3>No Active Crops</h3>
+                    <p>You don't have any active plantings yet.</p>
+                    <a href="crop-planting.html" class="btn-action">
+                        <i class="fas fa-plus"></i> Record a Planting
+                    </a>
+                </div>
+            `;
+        }
+
+        function displayPredictions(plantings) {
+            const container = document.getElementById('predictionsContainer');
+            const html = plantings.map((planting, index) => `
+                <div class="prediction-card" id="card-${index}">
+                    <h2 class="crop-header">${planting.cropName}</h2>
+
+                    <div class="metric-grid" id="metrics-${index}">
+                        <div class="metric-box">
+                            <div class="metric-value">${planting.currentYieldPrediction != null ? planting.currentYieldPrediction.toFixed(1) : '--'}</div>
+                            <div class="metric-label">Predicted Yield</div>
+                        </div>
+                        <div class="metric-box">
+                            <div class="metric-value">${planting.plantingConfidence != null ? planting.plantingConfidence.toFixed(1) + '%' : '--'}</div>
+                            <div class="metric-label">Confidence</div>
+                        </div>
+                        <div class="metric-box">
+                            <div class="metric-value">${planting.cropAgeInDays}</div>
+                            <div class="metric-label">Days Since Sowing</div>
+                        </div>
+                        <div class="metric-box">
+                            <div class="metric-value">${planting.growthStage}</div>
+                            <div class="metric-label">Growth Stage</div>
+                        </div>
+                    </div>
+
+                    <div class="chart-container">
+                        <canvas id="chart-${index}"></canvas>
+                    </div>
+
+                    <div class="risk-section">
+                        <div class="risk-title">
+                            <i class="fas fa-exclamation-triangle"></i> AI Risk Assessment
+                        </div>
+                        <div class="risk-assessment" id="risk-${index}">
+                            ${planting.riskFactors || 'Calculating latest AI risk assessment...'}
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+
+            container.innerHTML = html;
+
+            // Refresh each planting with a fresh AI prediction, then render real history
+            plantings.forEach((planting, index) => {
+                refreshPrediction(planting, index);
+            });
+        }
+
+        async function refreshPrediction(planting, index) {
+            try {
+                await fetch(`${API_URL}/yield-predictions/${planting.id}/generate`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                const historyRes = await fetch(`${API_URL}/yield-predictions/${planting.id}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const historyData = await historyRes.json();
+
+                if (historyData.success && historyData.data.length > 0) {
+                    const history = historyData.data.slice().reverse();
+                    const latest = history[history.length - 1];
+
+                    const metricsEl = document.getElementById(`metrics-${index}`);
+                    if (metricsEl) {
+                        metricsEl.innerHTML = `
+                            <div class="metric-box">
+                                <div class="metric-value">${latest.predictedYield.toFixed(1)}</div>
+                                <div class="metric-label">Predicted Yield</div>
+                            </div>
+                            <div class="metric-box">
+                                <div class="metric-value">${latest.confidence.toFixed(1)}%</div>
+                                <div class="metric-label">Confidence</div>
+                            </div>
+                            <div class="metric-box">
+                                <div class="metric-value">${latest.cropAgeInDays}</div>
+                                <div class="metric-label">Days Since Sowing</div>
+                            </div>
+                            <div class="metric-box">
+                                <div class="metric-value">${latest.growthStage}</div>
+                                <div class="metric-label">Growth Stage</div>
+                            </div>
+                        `;
+                    }
+
+                    const riskEl = document.getElementById(`risk-${index}`);
+                    if (riskEl) {
+                        riskEl.textContent = latest.riskAssessment || 'No significant risks detected.';
+                    }
+
+                    renderChart(index, history);
+                }
+            } catch (error) {
+                console.error('Error refreshing prediction:', error);
+            }
+        }
+
+        function renderChart(index, history) {
+            const canvas = document.getElementById(`chart-${index}`);
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+
+            const labels = history.map(h => `Day ${h.cropAgeInDays}`);
+            const predictions = history.map(h => h.predictedYield);
+
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'AI Yield Prediction (real history)',
+                        data: predictions,
+                        borderColor: '#2ecc71',
+                        backgroundColor: 'rgba(46, 204, 113, 0.1)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: 4,
+                        pointBackgroundColor: '#2ecc71',
+                        pointBorderColor: '#fff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            labels: {
+                                font: { size: 12, weight: '600' }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: { font: { size: 12 } }
+                        },
+                        x: {
+                            ticks: { font: { size: 12 } }
+                        }
+                    }
+                }
+            });
+        }
+
+        loadPredictions();
+    </script>
+</body>
+</html>

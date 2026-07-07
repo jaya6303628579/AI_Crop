@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crop Planting - AI Crop Advisor</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/theme.css">
+    <style>
+        :root {
+            --primary: #2ecc71;
+            --secondary: #3498db;
+            --dark: #2c3e50;
+        }
+
+        body {
+            background: #f5f7fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .navbar-custom {
+            background: white;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .sidebar {
+            background: white;
+            min-height: calc(100vh - 56px);
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.05);
+            padding: 20px 0;
+        }
+
+        .sidebar .nav-link {
+            color: #666;
+            padding: 15px 25px;
+            border-left: 3px solid transparent;
+        }
+
+        .sidebar .nav-link.active {
+            background: #f0f9f4;
+            color: var(--primary);
+            border-left-color: var(--primary);
+        }
+
+        .main-content {
+            padding: 30px;
+        }
+
+        .form-card {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            color: var(--dark);
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .form-control {
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 10px 15px;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 0.2rem rgba(46, 204, 113, 0.25);
+        }
+
+        .btn-submit {
+            background: linear-gradient(135deg, var(--primary) 0%, #27ae60 100%);
+            border: none;
+            color: white;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(46, 204, 113, 0.3);
+        }
+
+        .planting-card {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .planting-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .crop-title {
+            color: var(--dark);
+            font-size: 1.3rem;
+            font-weight: 700;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .status-sown {
+            background: #e8f5e9;
+            color: var(--primary);
+        }
+
+        .planting-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+        }
+
+        .info-box {
+            background: #f5f7fa;
+            padding: 15px;
+            border-radius: 8px;
+        }
+
+        .info-label {
+            color: #999;
+            font-size: 0.9rem;
+            margin-bottom: 5px;
+        }
+
+        .info-value {
+            color: var(--primary);
+            font-size: 1.1rem;
+            font-weight: 700;
+        }
+
+        .alert {
+            border-radius: 10px;
+            border: none;
+            margin-bottom: 20px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-light navbar-custom sticky-top">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="dashboard.html">
+                <i class="fas fa-leaf"></i> AI Crop Advisor
+            </a>
+            <div class="ms-auto">
+                <a class="nav-link" href="#" id="logoutBtn">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <nav class="col-md-3 col-lg-2 sidebar">
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link" href="dashboard.html">
+                            <i class="fas fa-home"></i> Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="soil-analysis.html">
+                            <i class="fas fa-image"></i> Soil Analysis
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="crop-recommendation.html">
+                            <i class="fas fa-seedling"></i> Recommendations
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="crop-planting.html">
+                            <i class="fas fa-leaf"></i> My Plantings
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="yield-prediction.html">
+                            <i class="fas fa-chart-line"></i> Yield Predictions
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="alerts.html">
+                            <i class="fas fa-bell"></i> Alerts
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+
+            <!-- Main Content -->
+            <main class="col-md-9 col-lg-10 main-content">
+                <h1 class="mb-4">Crop Planting</h1>
+
+                <div id="alert" class="alert"></div>
+
+                <!-- Add New Planting Form -->
+                <div class="form-card mb-4">
+                    <h3 class="mb-4"><i class="fas fa-plus-circle" style="color: var(--primary);"></i> Record New Planting</h3>
+
+                    <form id="plantingForm">
+                        <div class="form-group">
+                            <label class="form-label">Select Crop</label>
+                            <input type="hidden" id="cropId" required>
+                            <div class="crop-picker-trigger" id="cropPickerTrigger" data-bs-toggle="modal" data-bs-target="#cropPickerModal">
+                                <span class="crop-picker-icon" id="cropPickerIcon">🌾</span>
+                                <span class="placeholder" id="cropPickerLabel">Choose a crop...</span>
+                                <i class="fas fa-chevron-down ms-auto"></i>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="sowingDate" class="form-label">Sowing Date</label>
+                            <input type="date" class="form-control" id="sowingDate" required>
+                        </div>
+
+                        <div class="form-group">
+                            <button type="button" class="btn-secondary w-100" id="checkSowingBtn" style="padding: 10px;">
+                                <i class="fas fa-cloud-sun-rain"></i> Check Sowing Suitability (uses your live location)
+                            </button>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="areaPlanted" class="form-label">Area Planted (Acres)</label>
+                            <input type="number" class="form-control" id="areaPlanted" step="0.1" required>
+                        </div>
+
+                        <button type="submit" class="btn-submit">
+                            <i class="fas fa-save"></i> Record Planting
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Active Plantings -->
+                <h3 class="mb-3"><i class="fas fa-seedling"></i> Active Plantings</h3>
+                <div id="plantingsContainer"></div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Crop Picker Modal -->
+    <div class="modal fade" id="cropPickerModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="fas fa-seedling" style="color: var(--primary);"></i> Select a Crop</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="crop-grid" id="cropGrid">
+                        <p class="text-muted">Loading crops...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sowing Suitability Report Modal -->
+    <div class="modal fade" id="sowingReportModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="fas fa-file-lines" style="color: var(--primary);"></i> Sowing Suitability Report</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="sowingReportBody"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const API_URL = '/api';
+        const token = localStorage.getItem('token');
+
+        if (!token) {
+            window.location.href = 'login.html';
+        }
+
+        document.getElementById('logoutBtn').addEventListener('click', (e) => {
+            e.preventDefault();
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            window.location.href = 'login.html';
+        });
+
+        // Load crops into the grid picker
+        async function loadCrops() {
+            try {
+                const response = await fetch(`${API_URL}/crops`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    renderCropGrid(data.data);
+                }
+            } catch (error) {
+                console.error('Error loading crops:', error);
+            }
+        }
+
+        function renderCropGrid(crops) {
+            const grid = document.getElementById('cropGrid');
+            grid.innerHTML = crops.map(crop => `
+                <div class="crop-tile" data-crop-id="${crop.id}" data-crop-name="${crop.name}" data-crop-icon="${crop.imageUrl || '🌱'}">
+                    <span class="crop-tile-icon">${crop.imageUrl || '🌱'}</span>
+                    <span class="crop-tile-name">${crop.name}</span>
+                    ${crop.localName ? `<span style="display:block; font-size:0.75rem; color:var(--text-lo, #888); margin-top:2px;">${crop.localName}</span>` : ''}
+                </div>
+            `).join('') + `
+                <div class="crop-tile" id="otherCropTile">
+                    <span class="crop-tile-icon"><i class="fas fa-magnifying-glass" style="color: var(--primary);"></i></span>
+                    <span class="crop-tile-name">Other crops</span>
+                </div>
+            `;
+
+            grid.querySelectorAll('.crop-tile[data-crop-id]').forEach(tile => {
+                tile.addEventListener('click', () => selectCrop(tile));
+            });
+
+            document.getElementById('otherCropTile').addEventListener('click', discoverMoreCrops);
+        }
+
+        async function discoverMoreCrops() {
+            const otherTile = document.getElementById('otherCropTile');
+            const originalHtml = otherTile.innerHTML;
+            otherTile.innerHTML = `<span class="crop-tile-icon"><i class="fas fa-spinner fa-spin" style="color: var(--primary);"></i></span><span class="crop-tile-name">Asking AI...</span>`;
+
+            try {
+                const response = await fetch(`${API_URL}/crops/discover`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await response.json();
+
+                if (data.success) {
+                    const allCropsRes = await fetch(`${API_URL}/crops`, {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                    const allCropsData = await allCropsRes.json();
+                    if (allCropsData.success) {
+                        renderCropGrid(allCropsData.data);
+                    }
+                } else {
+                    otherTile.innerHTML = originalHtml;
+                }
+            } catch (error) {
+                console.error('Error discovering crops:', error);
+                otherTile.innerHTML = originalHtml;
+            }
+        }
+
+        function selectCrop(tile) {
+            document.getElementById('cropId').value = tile.dataset.cropId;
+            document.getElementById('cropPickerIcon').textContent = tile.dataset.cropIcon;
+            const label = document.getElementById('cropPickerLabel');
+            label.textContent = tile.dataset.cropName;
+            label.classList.remove('placeholder');
+
+            document.querySelectorAll('.crop-tile').forEach(t => t.classList.remove('selected'));
+            tile.classList.add('selected');
+
+            const modal = bootstrap.Modal.getInstance(document.getElementById('cropPickerModal'));
+            if (modal) modal.hide();
+        }
+
+        // Get the farmer's live device location (falls back to a default if denied/unavailable)
+        function getLiveLocation() {
+            return new Promise((resolve) => {
+                if (!navigator.geolocation) {
+                    resolve({ latitude: null, longitude: null });
+                    return;
+                }
+                navigator.geolocation.getCurrentPosition(
+                    (position) => resolve({
+                        latitude: position.coords.latitude,
+                        longitude: position.coords.longitude
+                    }),
+                    () => resolve({ latitude: null, longitude: null }),
+                    { timeout: 8000 }
+                );
+            });
+        }
+
+        document.getElementById('checkSowingBtn').addEventListener('click', async () => {
+            const cropIdValue = document.getElementById('cropId').value;
+            const sowingDate = document.getElementById('sowingDate').value;
+            const btn = document.getElementById('checkSowingBtn');
+
+            if (!cropIdValue) {
+                showAlert('Please select a crop first', 'error');
+                return;
+            }
+            if (!sowingDate) {
+                showAlert('Please choose a sowing date first', 'error');
+                return;
+            }
+
+            const originalBtnHtml = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Checking your local weather...';
+            btn.disabled = true;
+
+            try {
+                const location = await getLiveLocation();
+
+                const response = await fetch(`${API_URL}/plantings/validate-sowing`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        cropId: parseInt(cropIdValue, 10),
+                        sowingDate: sowingDate,
+                        latitude: location.latitude,
+                        longitude: location.longitude
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    renderSowingValidation(data.data);
+                } else {
+                    showAlert(data.error || 'Failed to validate sowing plan', 'error');
+                }
+            } catch (error) {
+                console.error('Sowing validation error:', error);
+                showAlert('Error checking sowing suitability', 'error');
+            } finally {
+                btn.innerHTML = originalBtnHtml;
+                btn.disabled = false;
+            }
+        });
+
+        function renderSowingValidation(v) {
+            const verdictStyle = {
+                GOOD: { icon: 'fa-circle-check', color: 'var(--primary)', label: 'Good to sow' },
+                RISKY: { icon: 'fa-triangle-exclamation', color: '#d97706', label: 'Risky — proceed with caution' },
+                POOR: { icon: 'fa-circle-xmark', color: '#dc2626', label: 'Not recommended' }
+            }[v.verdict] || { icon: 'fa-circle-info', color: 'var(--secondary)', label: v.verdict };
+
+            const dateChanged = v.recommendedSowingStart && v.recommendedSowingStart !== v.plannedDate;
+            const seasonText = (v.typicalSowingMonths && v.typicalSowingMonths.length)
+                ? v.typicalSowingMonths.join(', ') : 'Not on record';
+
+            const weatherBasisNote = v.forecastBased
+                ? `Based on the actual forecast for your planned date (${v.daysUntilPlanting} day(s) away).`
+                : `Your planned date is ${v.daysUntilPlanting} day(s) away — beyond real forecast range (~5 days), so this assessment is based on ${v.cropName}'s typical growing season shown below, not a weather forecast for that exact day.`;
+
+            const body = document.getElementById('sowingReportBody');
+            body.innerHTML = `
+                <div style="text-align:center; margin-bottom:20px;">
+                    <i class="fas ${verdictStyle.icon}" style="font-size:2.5rem; color:${verdictStyle.color};"></i>
+                    <h4 style="color:${verdictStyle.color}; margin-top:8px;">${verdictStyle.label}</h4>
+                    <div class="text-muted">${v.cropName} — planned for ${formatDate(v.plannedDate)}</div>
+                </div>
+
+                <div class="metric-grid" style="margin-bottom:20px;">
+                    <div class="metric-box">
+                        <div class="metric-value">${v.survivalProbability != null ? v.survivalProbability.toFixed(0) : '--'}%</div>
+                        <div class="metric-label">Survival Likelihood</div>
+                    </div>
+                    <div class="metric-box">
+                        <div class="metric-value">${v.daysUntilPlanting}</div>
+                        <div class="metric-label">Days Until Planting</div>
+                    </div>
+                    <div class="metric-box">
+                        <div class="metric-value" style="font-size:1.1rem;">${v.currentTemperature != null ? v.currentTemperature.toFixed(1) + '°C' : '--'}</div>
+                        <div class="metric-label">${v.forecastBased ? 'Forecasted Temp' : 'Current Temp'}</div>
+                    </div>
+                    <div class="metric-box">
+                        <div class="metric-value" style="font-size:1.1rem;">${v.forecastRainfall != null ? v.forecastRainfall.toFixed(0) + 'mm' : '--'}</div>
+                        <div class="metric-label">Rainfall</div>
+                    </div>
+                </div>
+
+                <div class="info-section" style="margin-top:0; padding-top:0; border-top:none;">
+                    <h4><i class="fas fa-calendar-check" style="color: var(--primary); margin-right: 8px;"></i>Typical Season for ${v.cropName}</h4>
+                    <p class="info-text">${seasonText}</p>
+                </div>
+
+                <div class="info-section">
+                    <h4><i class="fas fa-cloud" style="color: var(--secondary); margin-right: 8px;"></i>AI Analysis</h4>
+                    <p class="info-text" style="font-style:italic; color:#999; font-size:0.85rem;">${weatherBasisNote}</p>
+                    <p class="info-text">${v.reasoning || ''}</p>
+                    ${v.riskFactors && v.riskFactors.length ? `
+                        <ul>
+                            ${v.riskFactors.map(r => `<li>${r}</li>`).join('')}
+                        </ul>
+                    ` : ''}
+                </div>
+
+                ${dateChanged ? `
+                    <div class="sowing-window" style="margin-top:20px;">
+                        <h5 style="margin-bottom:10px;"><i class="fas fa-lightbulb" style="color:#d97706;"></i> Recommended Sowing Window</h5>
+                        <div style="display:flex; align-items:center; gap:16px; flex-wrap:wrap;">
+                            <strong>${formatDate(v.recommendedSowingStart)} &ndash; ${formatDate(v.recommendedSowingEnd)}</strong>
+                            <button type="button" class="btn-primary-custom" style="padding:8px 20px; font-size:0.85rem;" onclick="applyRecommendedDate('${v.recommendedSowingStart}')">
+                                Use this date
+                            </button>
+                        </div>
+                    </div>
+                ` : ''}
+            `;
+
+            const modal = new bootstrap.Modal(document.getElementById('sowingReportModal'));
+            modal.show();
+        }
+
+        function applyRecommendedDate(date) {
+            document.getElementById('sowingDate').value = date;
+            const modal = bootstrap.Modal.getInstance(document.getElementById('sowingReportModal'));
+            if (modal) modal.hide();
+        }
+
+        // Handle form submission
+        document.getElementById('plantingForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const cropIdValue = document.getElementById('cropId').value;
+            if (!cropIdValue) {
+                showAlert('Please select a crop first', 'error');
+                return;
+            }
+
+            const formData = {
+                cropId: parseInt(cropIdValue, 10),
+                sowingDate: document.getElementById('sowingDate').value,
+                areaPlanted: parseFloat(document.getElementById('areaPlanted').value)
+            };
+
+            try {
+                const response = await fetch(`${API_URL}/plantings`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showAlert('Planting recorded successfully!', 'success');
+                    document.getElementById('plantingForm').reset();
+                    document.getElementById('cropPickerIcon').textContent = '🌾';
+                    const label = document.getElementById('cropPickerLabel');
+                    label.textContent = 'Choose a crop...';
+                    label.classList.add('placeholder');
+                    document.querySelectorAll('.crop-tile').forEach(t => t.classList.remove('selected'));
+                    loadPlantings();
+                } else {
+                    showAlert(data.error || 'Failed to record planting', 'error');
+                }
+            } catch (error) {
+                showAlert('Error recording planting', 'error');
+            }
+        });
+
+        // Load plantings
+        async function loadPlantings() {
+            try {
+                const response = await fetch(`${API_URL}/plantings`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    displayPlantings(data.data);
+                }
+            } catch (error) {
+                console.error('Error loading plantings:', error);
+            }
+        }
+
+        function displayPlantings(plantings) {
+            const container = document.getElementById('plantingsContainer');
+
+            if (plantings.length === 0) {
+                container.innerHTML = '<p class="text-muted">No plantings recorded yet</p>';
+                return;
+            }
+
+            const html = plantings.map(planting => `
+                <div class="planting-card">
+                    <div class="planting-header">
+                        <div class="crop-title">${planting.cropIcon || '🌱'} ${planting.cropName}</div>
+                        <span class="status-badge status-${planting.status.toLowerCase()}">${planting.status}</span>
+                    </div>
+
+                    <div class="planting-info">
+                        <div class="info-box">
+                            <div class="info-label">Sowing Date</div>
+                            <div class="info-value">${formatDate(planting.sowingDate)}</div>
+                        </div>
+                        <div class="info-box">
+                            <div class="info-label">Crop Age</div>
+                            <div class="info-value">${planting.cropAgeInDays} days</div>
+                        </div>
+                        <div class="info-box">
+                            <div class="info-label">Growth Stage</div>
+                            <div class="info-value">${planting.growthStage}</div>
+                        </div>
+                        <div class="info-box">
+                            <div class="info-label">Expected Harvest</div>
+                            <div class="info-value">${formatDate(planting.expectedHarvestDate)}</div>
+                        </div>
+                        <div class="info-box">
+                            <div class="info-label">Yield Prediction</div>
+                            <div class="info-value">${planting.currentYieldPrediction.toFixed(1)} t/ha</div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+
+            container.innerHTML = html;
+        }
+
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+        }
+
+        function showAlert(message, type) {
+            const alertDiv = document.getElementById('alert');
+            alertDiv.className = `alert alert-${type === 'error' ? 'danger' : type}`;
+            alertDiv.textContent = message;
+            alertDiv.style.display = 'block';
+            setTimeout(() => {
+                alertDiv.style.display = 'none';
+            }, 4000);
+        }
+
+        // Load initial data
+        loadCrops();
+        loadPlantings();
+    </script>
+</body>
+</html>

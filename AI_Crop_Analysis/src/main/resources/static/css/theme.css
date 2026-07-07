@@ -1,0 +1,517 @@
+/* ============================================
+   AI CROP ADVISOR — PROFESSIONAL LIGHT UI THEME
+   Clean SaaS-style design: white surfaces, soft shadows,
+   a single confident accent color, and restrained motion.
+
+   NOTE: every rule below is scoped as "html body <selector>" (instead of
+   just "<selector>") purely to win CSS specificity over each page's own
+   inline <style> block (this file loads in <head> BEFORE those blocks,
+   so without the extra specificity the page's later, equal-specificity
+   rules would silently override this theme).
+   ============================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+:root {
+    /* Surfaces */
+    --bg-page: #f6f8fb;
+    --bg-surface: #ffffff;
+    --bg-surface-alt: #f1f5f9;
+    --border-soft: #e5e9f0;
+    --border-strong: #d7dde6;
+
+    /* Brand */
+    --brand-600: #16a34a;
+    --brand-700: #0f8a3d;
+    --brand-100: #e7f7ed;
+    --brand-50: #f2fbf5;
+    --accent-blue: #2563eb;
+    --accent-blue-100: #eaf1ff;
+
+    /* Semantic */
+    --primary: #16a34a;
+    --secondary: #2563eb;
+    --dark: #101828;
+    --success: #16a34a;
+    --warning: #d97706;
+    --danger: #dc2626;
+
+    /* Text */
+    --text-hi: #101828;
+    --text-mid: #344054;
+    --text-lo: #667085;
+    --text-faint: #98a2b3;
+
+    /* Effects */
+    --shadow-xs: 0 1px 2px rgba(16, 24, 40, 0.05);
+    --shadow-sm: 0 1px 3px rgba(16, 24, 40, 0.08), 0 1px 2px rgba(16, 24, 40, 0.04);
+    --shadow-md: 0 4px 16px rgba(16, 24, 40, 0.08);
+    --shadow-lg: 0 12px 32px rgba(16, 24, 40, 0.12);
+    --radius-lg: 16px;
+    --radius-md: 12px;
+    --radius-sm: 8px;
+    --ease: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+html body * { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+html body {
+    background: var(--bg-page);
+    color: var(--text-mid);
+    font-family: 'Inter', 'Segoe UI', sans-serif;
+    -webkit-font-smoothing: antialiased;
+}
+
+html body h1, html body h2, html body h3, html body h4, html body h5 {
+    font-family: 'Inter', 'Segoe UI', sans-serif;
+    color: var(--text-hi);
+    font-weight: 700;
+    letter-spacing: -0.01em;
+}
+
+html body .gradient-text {
+    color: var(--brand-600);
+}
+
+html body a { color: var(--accent-blue); text-decoration: none; }
+
+/* ============================================
+   CARD SYSTEM
+   ============================================ */
+html body .glass-card,
+html body .card,
+html body .recommendation-card,
+html body .prediction-card,
+html body .analysis-card,
+html body .dashboard-card,
+html body .upload-card,
+html body .login-container,
+html body .register-container,
+html body .stat-card,
+html body .action-card,
+html body .alert-container,
+html body .date-box,
+html body .hero-container,
+html body .feature-card,
+html body .form-card,
+html body .planting-card,
+html body .crop-card {
+    background: var(--bg-surface) !important;
+    border: 1px solid var(--border-soft) !important;
+    border-radius: var(--radius-lg) !important;
+    box-shadow: var(--shadow-sm) !important;
+    color: var(--text-mid);
+    position: relative;
+    transition: transform 0.25s var(--ease), box-shadow 0.25s var(--ease), border-color 0.25s var(--ease);
+}
+
+html body .glass-card:hover,
+html body .recommendation-card:hover,
+html body .crop-card:hover,
+html body .stat-card:hover,
+html body .action-card:hover,
+html body .dashboard-card:hover {
+    transform: translateY(-3px);
+    border-color: var(--border-strong) !important;
+    box-shadow: var(--shadow-md) !important;
+}
+
+html body .card-header {
+    background: transparent !important;
+    border-bottom: 1px solid var(--border-soft) !important;
+    color: var(--text-hi) !important;
+    font-weight: 700;
+}
+
+html body .card-body { color: var(--text-mid); }
+
+/* Accent cards: keep their semantic colored LEFT border, just clean up the rest */
+html body .alert-item,
+html body .sowing-window,
+html body .risk-section,
+html body .info-section {
+    background: var(--bg-surface-alt) !important;
+    border-top: 1px solid var(--border-soft) !important;
+    border-right: 1px solid var(--border-soft) !important;
+    border-bottom: 1px solid var(--border-soft) !important;
+    border-radius: var(--radius-md) !important;
+    color: var(--text-mid);
+}
+
+/* ============================================
+   TYPOGRAPHY
+   ============================================ */
+html body p, html body span, html body div, html body li,
+html body td, html body th, html body label { color: inherit; }
+
+html body .text-muted { color: var(--text-faint) !important; }
+
+/* ============================================
+   BUTTONS
+   ============================================ */
+html body .btn-primary-custom,
+html body .btn-login,
+html body .btn-register,
+html body .btn-upload,
+html body .btn-action,
+html body .btn-primary {
+    background: var(--brand-600) !important;
+    border: none !important;
+    color: #ffffff !important;
+    font-weight: 600 !important;
+    border-radius: var(--radius-sm) !important;
+    padding: 12px 24px;
+    box-shadow: var(--shadow-xs);
+    transition: transform 0.2s var(--ease), box-shadow 0.2s var(--ease), background 0.2s var(--ease);
+}
+
+html body .btn-primary-custom:hover,
+html body .btn-login:hover,
+html body .btn-register:hover,
+html body .btn-upload:hover,
+html body .btn-action:hover,
+html body .btn-primary:hover {
+    background: var(--brand-700) !important;
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md) !important;
+    color: #ffffff !important;
+}
+
+html body .btn-secondary {
+    background: #ffffff !important;
+    border: 1.5px solid var(--brand-600) !important;
+    color: var(--brand-600) !important;
+    border-radius: 999px !important;
+    font-weight: 600 !important;
+    transition: all 0.2s var(--ease);
+}
+
+html body .btn-secondary:hover {
+    background: var(--brand-50) !important;
+    color: var(--brand-700) !important;
+    transform: translateY(-2px);
+}
+
+html body .btn-outline-danger, html body .btn-danger {
+    background: transparent !important;
+    border: 1px solid rgba(220, 38, 38, 0.4) !important;
+    color: var(--danger) !important;
+    border-radius: var(--radius-sm) !important;
+    transition: all 0.2s var(--ease);
+}
+
+html body .btn-outline-danger:hover, html body .btn-danger:hover {
+    background: rgba(220, 38, 38, 0.08) !important;
+}
+
+/* ============================================
+   FORM CONTROLS
+   ============================================ */
+html body .form-control, html body .form-select, html body textarea {
+    background: #ffffff !important;
+    border: 1.5px solid var(--border-strong) !important;
+    color: var(--text-hi) !important;
+    border-radius: var(--radius-sm) !important;
+    transition: all 0.2s var(--ease);
+}
+
+html body .form-control::placeholder { color: var(--text-faint) !important; }
+
+html body .form-control:focus, html body .form-select:focus {
+    border-color: var(--brand-600) !important;
+    box-shadow: 0 0 0 3px var(--brand-100) !important;
+    color: var(--text-hi) !important;
+}
+
+html body .form-label { color: var(--text-mid) !important; font-weight: 600; }
+
+/* ============================================
+   NAVBAR / SIDEBAR
+   ============================================ */
+html body .navbar, html body .sidebar {
+    background: #ffffff !important;
+    border-bottom: 1px solid var(--border-soft) !important;
+}
+
+html body .sidebar { border-right: 1px solid var(--border-soft) !important; border-bottom: none !important; }
+
+html body .navbar-brand {
+    color: var(--brand-600) !important;
+    font-weight: 800 !important;
+}
+
+html body .nav-link {
+    color: var(--text-lo) !important;
+    border-radius: var(--radius-sm);
+    transition: all 0.2s var(--ease);
+}
+
+html body .nav-link:hover {
+    color: var(--text-hi) !important;
+    background: var(--bg-surface-alt) !important;
+}
+
+html body .nav-link.active {
+    color: var(--brand-700) !important;
+    background: var(--brand-50) !important;
+    font-weight: 600;
+}
+
+/* ============================================
+   METRIC / STAT BOXES
+   ============================================ */
+html body .metric-box, html body .stat-box {
+    background: var(--bg-surface-alt) !important;
+    border: 1px solid var(--border-soft) !important;
+    border-radius: var(--radius-md) !important;
+    transition: transform 0.2s var(--ease), border-color 0.2s var(--ease);
+}
+
+html body .metric-box:hover, html body .stat-box:hover {
+    transform: translateY(-2px);
+    border-color: var(--border-strong) !important;
+}
+
+html body .metric-value {
+    color: var(--brand-700) !important;
+    font-weight: 800;
+}
+
+/* ============================================
+   CONFIDENCE / PROGRESS BARS
+   ============================================ */
+html body .confidence-bar, html body .progress {
+    background: var(--bg-surface-alt) !important;
+    border-radius: 999px !important;
+    overflow: hidden;
+    height: 22px;
+}
+
+html body .confidence-fill, html body .progress-bar {
+    background: var(--brand-600) !important;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding-right: 10px;
+    color: #ffffff !important;
+    font-weight: 700;
+    font-size: 0.8rem;
+    border-radius: 999px;
+    transition: width 0.8s var(--ease);
+}
+
+/* ============================================
+   ALERTS / BADGES
+   ============================================ */
+html body .alert {
+    border-radius: var(--radius-sm) !important;
+    border: 1px solid transparent !important;
+}
+
+html body .alert-danger, html body .alert-error {
+    background: #fef2f2 !important;
+    color: #b91c1c !important;
+    border-color: #fecaca !important;
+}
+
+html body .alert-success {
+    background: var(--brand-50) !important;
+    color: var(--brand-700) !important;
+    border-color: var(--brand-100) !important;
+}
+
+html body .alert-warning {
+    background: #fffbeb !important;
+    color: #b45309 !important;
+    border-color: #fde68a !important;
+}
+
+html body .badge { border-radius: 999px; font-weight: 600; }
+
+/* ============================================
+   ANIMATIONS — restrained, professional
+   ============================================ */
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(14px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes floatY {
+    0%, 100% { transform: translateY(0); }
+    50%      { transform: translateY(-5px); }
+}
+
+html body .animate-in {
+    animation: fadeInUp 0.5s var(--ease) both;
+}
+
+html body .animate-in-1 { animation-delay: 0.05s; }
+html body .animate-in-2 { animation-delay: 0.1s; }
+html body .animate-in-3 { animation-delay: 0.15s; }
+html body .animate-in-4 { animation-delay: 0.2s; }
+html body .animate-in-5 { animation-delay: 0.25s; }
+html body .animate-in-6 { animation-delay: 0.3s; }
+
+html body .float-icon { animation: floatY 3s ease-in-out infinite; }
+
+/* Automatic staggered entrance for card grids/lists — no JS required. */
+html body .dashboard-grid > *,
+html body #recommendationsContainer > *,
+html body #predictionsContainer > *,
+html body #recentAlertsContainer > *,
+html body #alertsContainer > *,
+html body #analysisResults > *,
+html body #plantingsContainer > *,
+html body .crop-card {
+    animation: fadeInUp 0.45s var(--ease) both;
+}
+
+html body .dashboard-grid > *:nth-child(1),
+html body #recommendationsContainer > *:nth-child(1),
+html body #predictionsContainer > *:nth-child(1),
+html body #recentAlertsContainer > *:nth-child(1),
+html body #alertsContainer > *:nth-child(1),
+html body #plantingsContainer > *:nth-child(1) { animation-delay: 0.03s; }
+
+html body .dashboard-grid > *:nth-child(2),
+html body #recommendationsContainer > *:nth-child(2),
+html body #predictionsContainer > *:nth-child(2),
+html body #recentAlertsContainer > *:nth-child(2),
+html body #alertsContainer > *:nth-child(2),
+html body #plantingsContainer > *:nth-child(2) { animation-delay: 0.08s; }
+
+html body .dashboard-grid > *:nth-child(3),
+html body #recommendationsContainer > *:nth-child(3),
+html body #predictionsContainer > *:nth-child(3),
+html body #recentAlertsContainer > *:nth-child(3),
+html body #alertsContainer > *:nth-child(3),
+html body #plantingsContainer > *:nth-child(3) { animation-delay: 0.13s; }
+
+html body .dashboard-grid > *:nth-child(4),
+html body #recommendationsContainer > *:nth-child(4),
+html body #predictionsContainer > *:nth-child(4),
+html body #recentAlertsContainer > *:nth-child(4),
+html body #alertsContainer > *:nth-child(4),
+html body #plantingsContainer > *:nth-child(4) { animation-delay: 0.18s; }
+
+html body .dashboard-grid > *:nth-child(n+5),
+html body #recommendationsContainer > *:nth-child(n+5),
+html body #predictionsContainer > *:nth-child(n+5),
+html body #alertsContainer > *:nth-child(n+5),
+html body #plantingsContainer > *:nth-child(n+5) { animation-delay: 0.22s; }
+
+html body .page-header h1,
+html body main > h1:first-of-type {
+    animation: fadeInUp 0.4s var(--ease) both;
+}
+
+/* Spinner */
+html body .spinner-border, html body .fa-spinner { color: var(--brand-600) !important; }
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: var(--bg-surface-alt); }
+::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 999px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-faint); }
+
+/* Empty states */
+html body .empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--text-lo);
+}
+
+html body .empty-state i {
+    font-size: 3rem;
+    color: var(--border-strong);
+    margin-bottom: 16px;
+    display: inline-block;
+}
+
+/* Chart container polish */
+html body .chart-container {
+    background: transparent;
+    border-radius: var(--radius-md);
+    padding: 8px;
+}
+
+html body table { color: var(--text-mid); }
+
+/* ============================================
+   CROP GRID SELECTOR (icons + popup modal)
+   ============================================ */
+html body .crop-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+    gap: 14px;
+    max-height: 60vh;
+    overflow-y: auto;
+    padding: 4px;
+}
+
+html body .crop-tile {
+    background: var(--bg-surface-alt) !important;
+    border: 1.5px solid var(--border-soft) !important;
+    border-radius: var(--radius-md) !important;
+    padding: 16px 10px;
+    text-align: center;
+    cursor: pointer;
+    transition: transform 0.15s var(--ease), border-color 0.15s var(--ease), box-shadow 0.15s var(--ease);
+}
+
+html body .crop-tile:hover {
+    transform: translateY(-3px);
+    border-color: var(--brand-600) !important;
+    box-shadow: var(--shadow-sm) !important;
+}
+
+html body .crop-tile.selected {
+    border-color: var(--brand-600) !important;
+    background: var(--brand-50) !important;
+    box-shadow: 0 0 0 3px var(--brand-100) !important;
+}
+
+html body .crop-tile-icon {
+    font-size: 2.2rem;
+    display: block;
+    margin-bottom: 8px;
+}
+
+html body .crop-tile-name {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-mid);
+}
+
+html body .crop-picker-trigger {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: #ffffff;
+    border: 1.5px solid var(--border-strong);
+    border-radius: var(--radius-sm);
+    padding: 10px 14px;
+    cursor: pointer;
+    transition: border-color 0.2s var(--ease);
+}
+
+html body .crop-picker-trigger:hover { border-color: var(--brand-600); }
+
+html body .crop-picker-trigger .placeholder { color: var(--text-faint); }
+
+html body .crop-picker-icon { font-size: 1.6rem; }
+
+html body .modal-content {
+    border-radius: var(--radius-lg) !important;
+    border: none !important;
+}
+
+html body .modal-header {
+    border-bottom: 1px solid var(--border-soft) !important;
+}
+
+html body .modal-footer {
+    border-top: 1px solid var(--border-soft) !important;
+}

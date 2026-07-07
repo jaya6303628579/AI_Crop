@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(taskkill //PID 14116 //F)",
+      "Bash(netstat -ano)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:8080/api/crops --max-time 2)",
+      "Bash(until grep -qE \"Started AiCropAdvisorApplication|BUILD FAILURE|Application run failed\" \"C:\\\\Users\\\\VELPUL~1.KRI\\\\AppData\\\\Local\\\\Temp\\\\app_final.log\" 2>/dev/null; do sleep 2; done *)",
+      "Bash(rm -f \"C:\\\\Users\\\\VELPUL~1.KRI\\\\AppData\\\\Local\\\\Temp\\\\app_final3.log\")",
+      "Bash(nohup mvn spring-boot:run)",
+      "Bash(disown)",
+      "Bash(rm -f \"C:\\\\Users\\\\VELPUL~1.KRI\\\\AppData\\\\Local\\\\Temp\\\\app_final4.log\")",
+      "Bash(mvn clean *)",
+      "Bash(taskkill //PID 31204 //F)",
+      "Bash(rm -f \"C:\\\\Users\\\\VELPUL~1.KRI\\\\AppData\\\\Local\\\\Temp\\\\app_v2.log\")",
+      "Read(//tmp/**)"
+    ]
+  }
+}

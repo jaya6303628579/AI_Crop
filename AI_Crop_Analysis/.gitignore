@@ -1,0 +1,49 @@
+# Maven
+target/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+dependency-reduced-pom.xml
+.flattened-pom.xml
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+*.iml
+*.class
+
+# Build
+bin/
+build/
+out/
+
+# Logs
+logs/
+*.log
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Uploads
+uploads/
+
+# Database
+*.db
+*.h2.db
+
+# Node modules (if using npm for frontend)
+node_modules/
+package-lock.json
+yarn.lock
+
+# OS
+Thumbs.db
+.DS_Store
