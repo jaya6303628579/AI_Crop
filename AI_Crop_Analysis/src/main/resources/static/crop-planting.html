@@ -157,6 +157,170 @@
             margin-bottom: 20px;
             display: none;
         }
+
+        /* Language & Speech Synthesis Styles */
+        .btn-outline-primary {
+            color: var(--primary);
+            border-color: var(--primary);
+            transition: all 0.3s ease;
+        }
+
+        .btn-outline-primary:hover {
+            background-color: var(--primary);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .btn-outline-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .list-group-item {
+            transition: all 0.2s ease;
+        }
+
+        .list-group-item:hover {
+            background-color: #f0f9f4;
+            border-color: var(--primary);
+        }
+
+        .metric-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 10px;
+        }
+
+        .metric-box {
+            background: #f5f7fa;
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+            border: 1px solid #e0e0e0;
+        }
+
+        .metric-value {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .metric-label {
+            font-size: 0.8rem;
+            color: #999;
+            margin-top: 5px;
+        }
+
+        .info-section {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f9fafb;
+            border-radius: 8px;
+            border-left: 3px solid var(--primary);
+        }
+
+        .info-section h4 {
+            margin-bottom: 10px;
+            color: var(--dark);
+            font-weight: 600;
+        }
+
+        .info-text {
+            color: #555;
+            line-height: 1.6;
+            margin: 8px 0;
+        }
+
+        .sowing-window {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            padding: 15px;
+            border-radius: 8px;
+        }
+
+        .btn-primary-custom {
+            background: linear-gradient(135deg, var(--primary) 0%, #27ae60 100%);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary-custom:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(46, 204, 113, 0.3);
+        }
+
+        .crop-tile {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-height: 100px;
+        }
+
+        .crop-tile:hover {
+            border-color: var(--primary);
+            box-shadow: 0 4px 12px rgba(46, 204, 113, 0.15);
+            transform: translateY(-2px);
+        }
+
+        .crop-tile.selected {
+            background: #f0f9f4;
+            border-color: var(--primary);
+            box-shadow: 0 4px 12px rgba(46, 204, 113, 0.25);
+        }
+
+        .crop-tile-icon {
+            font-size: 2rem;
+            margin-bottom: 8px;
+        }
+
+        .crop-tile-name {
+            font-weight: 500;
+            color: var(--dark);
+            text-align: center;
+            font-size: 0.9rem;
+        }
+
+        .crop-picker-trigger {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .crop-picker-trigger:hover {
+            border-color: var(--primary);
+        }
+
+        .crop-picker-icon {
+            font-size: 1.5rem;
+        }
+
+        .placeholder {
+            color: #999;
+        }
+
+        #cropGrid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 12px;
+        }
     </style>
 </head>
 <body>
@@ -285,17 +449,59 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title"><i class="fas fa-file-lines" style="color: var(--primary);"></i> Sowing Suitability Report</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <div class="ms-auto d-flex gap-2">
+                        <button type="button" class="btn btn-sm btn-outline-primary" id="speakBtn" title="Speak Report">
+                            <i class="fas fa-volume-high"></i> Speak
+                        </button>
+                        <button type="button" class="btn btn-sm btn-outline-primary" id="languageBtn" data-bs-toggle="modal" data-bs-target="#languageModal" title="Choose Language">
+                            <i class="fas fa-language"></i> Language
+                        </button>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
                 </div>
                 <div class="modal-body" id="sowingReportBody"></div>
             </div>
         </div>
     </div>
 
+    <!-- Language Selection Modal -->
+    <div class="modal fade" id="languageModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title"><i class="fas fa-language" style="color: var(--primary);"></i> Choose Language</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="list-group" id="languageList"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
+        // ============================================
+        // LANGUAGE CONFIGURATION
+        // ============================================
+        const LANGUAGES = [
+            { name: 'English', code: 'en', flag: '🇬🇧' },
+            { name: 'Telugu', code: 'te', flag: '🇮🇳' },
+            { name: 'Hindi', code: 'hi', flag: '🇮🇳' },
+            { name: 'Tamil', code: 'ta', flag: '🇮🇳' },
+            { name: 'Kannada', code: 'kn', flag: '🇮🇳' },
+            { name: 'Malayalam', code: 'ml', flag: '🇮🇳' },
+            { name: 'Marathi', code: 'mr', flag: '🇮🇳' },
+            { name: 'Gujarati', code: 'gu', flag: '🇮🇳' },
+            { name: 'Punjabi', code: 'pa', flag: '🇮🇳' },
+            { name: 'Bengali', code: 'bn', flag: '🇮🇳' },
+            { name: 'Urdu', code: 'ur', flag: '🇵🇰' }
+        ];
+
         const API_URL = '/api';
         const token = localStorage.getItem('token');
+        let currentLanguage = localStorage.getItem('selectedLanguage') || 'en';
+        let originalReportContent = null;
 
         if (!token) {
             window.location.href = 'login.html';
@@ -529,8 +735,23 @@
                 ` : ''}
             `;
 
+            // Store original content for translation
+            originalReportContent = body.innerHTML;
+
+            // Set language button display
+            const selectedLang = LANGUAGES.find(l => l.code === currentLanguage) || LANGUAGES[0];
+            updateLanguageButtonDisplay(selectedLang);
+
+            // Apply current language if not English
+            if (currentLanguage !== 'en') {
+                translateAndDisplayReport();
+            }
+
             const modal = new bootstrap.Modal(document.getElementById('sowingReportModal'));
             modal.show();
+
+            // Reinitialize language selector after modal is shown
+            setTimeout(() => initializeLanguageSelector(), 200);
         }
 
         function applyRecommendedDate(date) {
@@ -661,6 +882,400 @@
         // Load initial data
         loadCrops();
         loadPlantings();
+
+        // ============================================
+        // LANGUAGE & TRANSLATION FUNCTIONS
+        // ============================================
+        function initializeLanguageSelector() {
+            const languageList = document.getElementById('languageList');
+            languageList.innerHTML = LANGUAGES.map(lang => `
+                <button class="list-group-item list-group-item-action"
+                    data-language-code="${lang.code}"
+                    style="text-align: left; padding: 12px 16px; border: none; cursor: pointer;">
+                    <span style="font-size: 1.2rem; margin-right: 10px;">${lang.flag}</span>
+                    <span style="font-weight: 500;">${lang.name}</span>
+                    ${currentLanguage === lang.code ? '<i class="fas fa-check" style="float: right; color: var(--primary); margin-top: 2px;"></i>' : ''}
+                </button>
+            `).join('');
+
+            languageList.querySelectorAll('button').forEach(btn => {
+                btn.addEventListener('click', () => selectLanguage(btn.dataset.languageCode));
+            });
+        }
+
+        async function selectLanguage(langCode) {
+            currentLanguage = langCode;
+            localStorage.setItem('selectedLanguage', langCode);
+
+            // Update language button display
+            const selectedLang = LANGUAGES.find(l => l.code === langCode);
+            updateLanguageButtonDisplay(selectedLang);
+
+            // Close language modal
+            const modal = bootstrap.Modal.getInstance(document.getElementById('languageModal'));
+            if (modal) modal.hide();
+
+            // Translate the current report if it's open
+            if (originalReportContent) {
+                await translateAndDisplayReport();
+            }
+        }
+
+        function updateLanguageButtonDisplay(lang) {
+            const btn = document.getElementById('languageBtn');
+            btn.innerHTML = `<i class="fas fa-language"></i> ${lang.name}`;
+        }
+
+        async function translateText(text, targetLang) {
+            if (targetLang === 'en' || !text) return text;
+
+            try {
+                // Use backend API for accurate translation via Groq AI
+                const response = await fetch(`${API_URL}/translate/text`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: `text=${encodeURIComponent(text)}&targetLanguage=${targetLang}`
+                });
+
+                const data = await response.json();
+                if (data.success && data.data.translatedText) {
+                    return data.data.translatedText;
+                }
+                return text;
+            } catch (error) {
+                console.error('Translation error:', error);
+                return text;
+            }
+        }
+
+        async function translateHTMLContent(htmlContent, targetLang) {
+            if (targetLang === 'en') return htmlContent;
+
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = htmlContent;
+
+            // Get all text nodes
+            const walker = document.createTreeWalker(
+                tempDiv,
+                NodeFilter.SHOW_TEXT,
+                null,
+                false
+            );
+
+            const nodesToTranslate = [];
+            let node;
+            while (node = walker.nextNode()) {
+                const text = node.textContent.trim();
+                if (text && text.length > 0) {
+                    nodesToTranslate.push(node);
+                }
+            }
+
+            // Batch translate: combine multiple small texts and translate together
+            // This reduces API calls significantly
+            let i = 0;
+            while (i < nodesToTranslate.length) {
+                const batch = nodesToTranslate.slice(i, Math.min(i + 5, nodesToTranslate.length));
+
+                // Process each batch with slight delay to avoid rate limiting
+                for (const textNode of batch) {
+                    const original = textNode.textContent.trim();
+                    if (original.length > 0) {
+                        const translated = await translateText(original, targetLang);
+                        textNode.textContent = translated;
+                    }
+                }
+
+                i += batch.length;
+
+                // Add delay between batches to respect rate limits
+                if (i < nodesToTranslate.length) {
+                    await new Promise(resolve => setTimeout(resolve, 100));
+                }
+            }
+
+            return tempDiv.innerHTML;
+        }
+
+        async function translateAndDisplayReport() {
+            if (!originalReportContent || currentLanguage === 'en') {
+                document.getElementById('sowingReportBody').innerHTML = originalReportContent;
+                return;
+            }
+
+            // Show loading state
+            const body = document.getElementById('sowingReportBody');
+            const originalHTML = body.innerHTML;
+            body.innerHTML = '<div class="text-center"><i class="fas fa-spinner fa-spin"></i> Translating to ' +
+                             LANGUAGES.find(l => l.code === currentLanguage).name + '...</div>';
+
+            try {
+                const translated = await translateHTMLContent(originalReportContent, currentLanguage);
+                body.innerHTML = translated;
+            } catch (error) {
+                console.error('Translation failed:', error);
+                body.innerHTML = originalHTML;
+                showAlert('Translation failed, showing original language', 'warning');
+            }
+        }
+
+        // ============================================
+        // SPEECH SYNTHESIS FUNCTIONS
+        // ============================================
+        function getTextFromModal() {
+            const body = document.getElementById('sowingReportBody');
+            if (!body) return '';
+
+            // Get all paragraphs and text content
+            const textParts = [];
+
+            // Get heading (verdict)
+            const heading = body.querySelector('h4');
+            if (heading && heading.textContent) {
+                textParts.push(heading.textContent.trim());
+            }
+
+            // Get subtitle (crop info)
+            const subtitle = body.querySelector('.text-muted');
+            if (subtitle && subtitle.textContent) {
+                textParts.push(subtitle.textContent.trim());
+            }
+
+            // Get all section headings and their content
+            const sections = body.querySelectorAll('.info-section, [style*="border-left"]');
+            sections.forEach(section => {
+                // Get section title
+                const sectionTitle = section.querySelector('h4');
+                if (sectionTitle) {
+                    textParts.push(sectionTitle.textContent.trim());
+                }
+
+                // Get section paragraphs
+                const paragraphs = section.querySelectorAll('p');
+                paragraphs.forEach(p => {
+                    const text = p.textContent.trim();
+                    if (text && text.length > 5) { // Skip very short text
+                        textParts.push(text);
+                    }
+                });
+
+                // Get list items
+                const listItems = section.querySelectorAll('li');
+                listItems.forEach(li => {
+                    const text = li.textContent.trim();
+                    if (text && text.length > 5) {
+                        textParts.push(text);
+                    }
+                });
+            });
+
+            // Get any paragraphs not in sections
+            const allParagraphs = body.querySelectorAll('p');
+            allParagraphs.forEach(p => {
+                if (!p.closest('.info-section')) {
+                    const text = p.textContent.trim();
+                    if (text && text.length > 5) {
+                        textParts.push(text);
+                    }
+                }
+            });
+
+            // Combine all text parts
+            let text = textParts.join(' ');
+
+            // Clean up excessive whitespace
+            text = text.replace(/\s+/g, ' ').trim();
+
+            if (!text || text.length === 0) {
+                console.warn('No substantial text found in modal body');
+                return '';
+            }
+
+            console.log('Text extracted for speech:', text.substring(0, 150), '...');
+            console.log('Total text length:', text.length);
+            return text;
+        }
+
+        function getLanguageLocale(langCode) {
+            const localeMap = {
+                'en': 'en-US',
+                'te': 'te-IN',
+                'hi': 'hi-IN',
+                'ta': 'ta-IN',
+                'kn': 'kn-IN',
+                'ml': 'ml-IN',
+                'mr': 'mr-IN',
+                'gu': 'gu-IN',
+                'pa': 'pa-IN',
+                'bn': 'bn-IN',
+                'ur': 'ur-PK',
+                'as': 'as-IN',
+                'or': 'or-IN'
+            };
+            return localeMap[langCode] || `${langCode}-IN`;
+        }
+
+        async function speakText(textToSpeak, lang = 'en') {
+            console.log('🎤 Speak button clicked. Language:', lang);
+
+            // If no text provided, extract from modal
+            if (!textToSpeak || textToSpeak.trim().length === 0) {
+                textToSpeak = getTextFromModal();
+            }
+
+            if (!textToSpeak || textToSpeak.trim().length === 0) {
+                console.warn('No text to speak');
+                showAlert('No text to speak', 'warning');
+                return;
+            }
+
+            console.log('Text to speak:', textToSpeak.substring(0, 100) + '...');
+
+            // Cancel any ongoing speech
+            if (window.speechSynthesis.speaking) {
+                console.log('Cancelling previous speech');
+                window.speechSynthesis.cancel();
+            }
+
+            // For non-English languages, transliterate to Roman script first
+            let textToSpeech = textToSpeak;
+            if (lang !== 'en') {
+                console.log('🔤 Transliterating', lang, 'to Roman script...');
+                try {
+                    textToSpeech = await transliterateToRoman(textToSpeak, lang);
+                    console.log('✓ Transliterated text:', textToSpeech.substring(0, 100) + '...');
+                } catch (error) {
+                    console.warn('⚠️ Transliteration failed, using original text:', error.message);
+                    textToSpeech = textToSpeak;
+                }
+            }
+
+            // Create utterance
+            const utterance = new SpeechSynthesisUtterance(textToSpeech);
+
+            // Set language and voice properties
+            utterance.lang = "en-IN";
+            utterance.rate = 0.65;
+            utterance.pitch = 1;
+            utterance.volume = 1;
+
+            // Simple event handlers - no button toggling
+            utterance.onstart = () => {
+                console.log('✓ Speech STARTED with Ravi voice');
+            };
+
+            utterance.onend = () => {
+                console.log('✓ Speech ENDED');
+            };
+
+            utterance.onerror = (event) => {
+                console.error('❌ Speech ERROR:', event.error);
+                showAlert('Speech error: ' + event.error, 'warning');
+            };
+
+            // Select voice and speak
+            selectAndSpeakSimple(utterance);
+        }
+
+        async function transliterateToRoman(text, lang) {
+            try {
+                const response = await fetch(`${API_URL}/translate/text`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: `text=${encodeURIComponent(text)}&targetLanguage=roman_${lang}`
+                });
+
+                if (!response.ok) {
+                    console.warn('Transliteration API not available, using original text');
+                    return text;
+                }
+
+                const data = await response.json();
+                if (data.success && data.data && data.data.translatedText) {
+                    console.log('Transliteration successful');
+                    return data.data.translatedText;
+                }
+
+                // Fallback: return original if transliteration fails
+                console.warn('Transliteration API returned empty, using original text');
+                return text;
+            } catch (error) {
+                console.warn('Transliteration API error (will use original text):', error.message);
+                // Return original text instead of throwing error
+                return text;
+            }
+        }
+
+        function selectAndSpeakSimple(utterance) {
+            const voices = window.speechSynthesis.getVoices();
+            console.log('Available voices:', voices.length);
+
+            if (voices.length === 0) {
+                console.warn('No voices available, trying to reload...');
+                window.speechSynthesis.getVoices(); // Force reload
+            }
+
+            let selectedVoice = null;
+
+            // PRIORITY 1: Find Microsoft Ravi voice
+            selectedVoice = voices.find(v => v.name.toLowerCase().includes('ravi'));
+            if (selectedVoice) {
+                console.log('✓ Using Microsoft Ravi:', selectedVoice.name);
+            }
+
+            // PRIORITY 2: Find any English voice
+            if (!selectedVoice) {
+                selectedVoice = voices.find(v => v.lang.startsWith('en'));
+                if (selectedVoice) {
+                    console.log('✓ Using English voice:', selectedVoice.name);
+                }
+            }
+
+            // PRIORITY 3: Use first available voice
+            if (!selectedVoice && voices.length > 0) {
+                selectedVoice = voices[0];
+                console.log('✓ Using first available voice:', selectedVoice.name);
+            }
+
+            if (selectedVoice) {
+                utterance.voice = selectedVoice;
+                console.log('Voice:', selectedVoice.name, '| Lang:', selectedVoice.lang);
+            }
+
+            // SPEAK NOW
+            console.log('🎤 Speaking...');
+            window.speechSynthesis.speak(utterance);
+        }
+
+        // Load voices when they're available
+        if (window.speechSynthesis.onvoiceschanged !== undefined) {
+            window.speechSynthesis.onvoiceschanged = () => {
+                window.speechSynthesis.getVoices();
+            };
+        }
+
+        // ============================================
+        // EVENT LISTENERS FOR NEW FEATURES
+        // ============================================
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeLanguageSelector();
+
+            // Speak button listener
+            const speakBtn = document.getElementById('speakBtn');
+            if (speakBtn) {
+                speakBtn.addEventListener('click', () => {
+                    const langCode = currentLanguage || 'en';
+                    console.log('Speak button clicked. Current language:', langCode);
+                    speakText('', langCode);  // Extract text from modal and speak
+                });
+            }
+        });
     </script>
 </body>
 </html>

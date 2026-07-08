@@ -690,6 +690,153 @@ public class GroqAIService {
         return "{}";
     }
 
+    // ============================================
+    // TEXT TRANSLATION (with caching & fallback)
+    // ============================================
+    private static final java.util.Map<String, String> translationCache = new java.util.concurrent.ConcurrentHashMap<>();
+
+    public String translateText(String text, String targetLanguage) {
+        try {
+            if (text == null || text.trim().isEmpty()) {
+                return text;
+            }
+
+            // Check cache first
+            String cacheKey = targetLanguage + ":" + text.hashCode();
+            if (translationCache.containsKey(cacheKey)) {
+                log.debug("Cache hit for translation: {}", cacheKey);
+                return translationCache.get(cacheKey);
+            }
+
+            String languageName = getLanguageName(targetLanguage);
+            String prompt = String.format("""
+                    Translate the following English text to %s.
+                    IMPORTANT: Return ONLY the translated text, nothing else. No explanations, no markdown, no extra information.
+                    Keep the exact same meaning and structure.
+
+                    English text:
+                    %s
+                    """, languageName, text);
+
+            String response = callGroqAPIWithFallback(prompt, targetLanguage);
+            String result = response.trim();
+
+            // Cache the result
+            translationCache.put(cacheKey, result);
+
+            return result;
+        } catch (Exception e) {
+            log.error("Translation failed for language: {}", targetLanguage, e);
+            return text; // Return original text on failure
+        }
+    }
+
+    private String callGroqAPIWithFallback(String prompt, String targetLanguage) {
+        try {
+            // Try Groq first (will throw exception if rate limited)
+            return callGroqAPI(prompt);
+        } catch (Exception groqError) {
+            log.warn("Groq API failed, trying MyMemory fallback: {}", groqError.getMessage());
+            try {
+                // Fallback to MyMemory if Groq fails
+                return translateWithMyMemory(prompt, targetLanguage);
+            } catch (Exception memoryError) {
+                log.error("Both Groq and MyMemory failed", memoryError);
+                return "{}"; // Return empty response, caller will use original text
+            }
+        }
+    }
+
+    private String translateWithMyMemory(String prompt, String targetLanguage) throws Exception {
+        // Extract text from prompt
+        String text = prompt.split("English text:\\n")[1].trim();
+
+        String url = String.format(
+            "https://api.mymemory.translated.net/get?q=%s&langpair=en|%s",
+            java.net.URLEncoder.encode(text, "UTF-8"),
+            targetLanguage
+        );
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(java.net.URI.create(url))
+                .timeout(java.time.Duration.ofSeconds(10))
+                .GET()
+                .build();
+
+        HttpResponse<String> response = getHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
+
+        if (response.statusCode() == 200) {
+            JsonNode json = objectMapper.readTree(response.body());
+            String translatedText = json.path("responseData").path("translatedText").asText();
+            if (!translatedText.isEmpty()) {
+                return translatedText;
+            }
+        }
+
+        throw new Exception("MyMemory translation failed");
+    }
+
+    public String transliterateToRoman(String text, String sourceLanguage) {
+        try {
+            if (text == null || text.trim().isEmpty()) {
+                return text;
+            }
+
+            // Check cache first
+            String cacheKey = "roman_" + sourceLanguage + ":" + text.hashCode();
+            if (translationCache.containsKey(cacheKey)) {
+                log.debug("Cache hit for transliteration: {}", cacheKey);
+                return translationCache.get(cacheKey);
+            }
+
+            String languageName = getLanguageName(sourceLanguage);
+            String prompt = String.format("""
+                    Convert the following %s text to its Roman/Latin script phonetic representation.
+                    This is for TEXT-TO-SPEECH pronunciation, not translation.
+
+                    For example:
+                    - If input is Telugu "మీ భూమికి", output should be "Mee bhoomi ki"
+                    - If input is Tamil "வாழ்க", output should be "Vaalga"
+                    - If input is Hindi "नमस्ते", output should be "Namaste"
+
+                    Keep the same meaning but write it in Latin characters that sound like the original when spoken aloud.
+                    Return ONLY the transliterated text, nothing else. No explanations.
+
+                    %s text to convert:
+                    %s
+                    """, languageName, languageName, text);
+
+            String response = callGroqAPIWithFallback(prompt, sourceLanguage);
+            String result = response.trim();
+
+            // Cache the result
+            translationCache.put(cacheKey, result);
+
+            return result;
+        } catch (Exception e) {
+            log.error("Transliteration failed for language: {}", sourceLanguage, e);
+            return text; // Return original text on failure
+        }
+    }
+
+    private String getLanguageName(String languageCode) {
+        return switch (languageCode.toLowerCase()) {
+            case "te" -> "Telugu";
+            case "hi" -> "Hindi";
+            case "ta" -> "Tamil";
+            case "kn" -> "Kannada";
+            case "ml" -> "Malayalam";
+            case "mr" -> "Marathi";
+            case "gu" -> "Gujarati";
+            case "pa" -> "Punjabi";
+            case "bn" -> "Bengali";
+            case "ur" -> "Urdu";
+            case "as" -> "Assamese";
+            case "or" -> "Odia";
+            default -> "Unknown";
+        };
+    }
+
     public boolean isEnabled() {
         return groqApiKey != null && !groqApiKey.isEmpty();
     }
