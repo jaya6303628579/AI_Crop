@@ -28,7 +28,7 @@ public class RecommendationController {
             @RequestParam Long soilAnalysisId) {
 
         try {
-            User user = getOrCreateDefaultUser();
+            User user = userService.getCurrentAuthenticatedUser();
 
             Crop crop = cropService.getCropById(cropId)
                     .orElseThrow(() -> new RuntimeException("Crop not found"));
@@ -63,7 +63,7 @@ public class RecommendationController {
             @RequestParam Long soilAnalysisId) {
 
         try {
-            User user = getOrCreateDefaultUser();
+            User user = userService.getCurrentAuthenticatedUser();
 
             SoilAnalysisDTO soilDTO = soilAnalysisService.getSoilAnalysis(soilAnalysisId, user);
             SoilAnalysis soil = new SoilAnalysis();
@@ -94,7 +94,7 @@ public class RecommendationController {
     public ResponseEntity<ApiResponse<List<CropRecommendationDTO>>> getUserRecommendations() {
 
         try {
-            User user = getOrCreateDefaultUser();
+            User user = userService.getCurrentAuthenticatedUser();
             List<CropRecommendationDTO> recommendations = recommendationService.getUserRecommendations(user);
             return ResponseEntity.ok(ApiResponse.success("Recommendations retrieved successfully", recommendations));
         } catch (RuntimeException e) {
@@ -108,7 +108,7 @@ public class RecommendationController {
             @PathVariable Long recommendationId) {
 
         try {
-            User user = getOrCreateDefaultUser();
+            User user = userService.getCurrentAuthenticatedUser();
             recommendationService.acceptRecommendation(recommendationId, user);
             return ResponseEntity.ok(ApiResponse.success("Recommendation accepted successfully", null));
         } catch (RuntimeException e) {
@@ -117,19 +117,4 @@ public class RecommendationController {
         }
     }
 
-    private User getOrCreateDefaultUser() {
-        String defaultEmail = "default@aicrop.com";
-        return userService.findByEmail(defaultEmail)
-                .orElseGet(() -> {
-                    User newUser = User.builder()
-                            .email(defaultEmail)
-                            .fullName("Public User")
-                            .phoneNumber("0000000000")
-                            .password("default")
-                            .role(User.UserRole.FARMER)
-                            .active(true)
-                            .build();
-                    return userService.createUser(newUser);
-                });
-    }
 }

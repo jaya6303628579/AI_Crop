@@ -6,7 +6,6 @@
     <title>Register - AI Crop Advisor</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="css/theme.css">
     <style>
         :root {
             --primary: #2ecc71;
@@ -15,9 +14,9 @@
         }
 
         body {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
             min-height: 100vh;
-            padding: 40px 20px;
+            padding: 30px 0;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
@@ -25,26 +24,46 @@
             background: white;
             border-radius: 20px;
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            padding: 40px;
+            padding: 50px;
             width: 100%;
-            max-width: 600px;
+            max-width: 650px;
             margin: 0 auto;
+            animation: slideUp 0.5s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .register-header {
             text-align: center;
-            margin-bottom: 30px;
+            margin-bottom: 40px;
         }
 
         .register-header i {
-            font-size: 2.5rem;
+            font-size: 3rem;
             color: var(--primary);
-            margin-bottom: 10px;
+            margin-bottom: 15px;
+            display: block;
         }
 
         .register-header h1 {
             color: var(--dark);
             font-weight: 700;
+            margin-bottom: 5px;
+            font-size: 2rem;
+        }
+
+        .register-header p {
+            color: #666;
+            margin-bottom: 0;
         }
 
         .form-row {
@@ -53,10 +72,8 @@
             gap: 20px;
         }
 
-        @media (max-width: 768px) {
-            .form-row {
-                grid-template-columns: 1fr;
-            }
+        .form-row.full {
+            grid-template-columns: 1fr;
         }
 
         .form-group {
@@ -66,19 +83,23 @@
         .form-label {
             color: var(--dark);
             font-weight: 600;
-            margin-bottom: 8px;
+            margin-bottom: 10px;
+            display: block;
         }
 
         .form-control {
             border: 2px solid #e0e0e0;
             border-radius: 10px;
-            padding: 10px 15px;
+            padding: 12px 15px;
+            font-size: 1rem;
             transition: all 0.3s ease;
+            width: 100%;
         }
 
         .form-control:focus {
             border-color: var(--primary);
             box-shadow: 0 0 0 0.2rem rgba(46, 204, 113, 0.25);
+            outline: none;
         }
 
         .btn-register {
@@ -91,6 +112,8 @@
             transition: all 0.3s ease;
             width: 100%;
             margin-top: 20px;
+            cursor: pointer;
+            font-size: 1rem;
         }
 
         .btn-register:hover {
@@ -99,10 +122,39 @@
             color: white;
         }
 
+        .btn-register:active {
+            transform: translateY(0);
+        }
+
+        .btn-register:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .btn-back {
+            background: #f0f0f0;
+            border: none;
+            color: var(--dark);
+            padding: 12px;
+            border-radius: 10px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            width: 100%;
+            margin-top: 10px;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        .btn-back:hover {
+            background: #e0e0e0;
+            color: var(--dark);
+        }
+
         .register-footer {
             text-align: center;
-            margin-top: 20px;
+            margin-top: 30px;
             color: #666;
+            font-size: 0.9rem;
         }
 
         .register-footer a {
@@ -111,154 +163,424 @@
             font-weight: 600;
         }
 
+        .register-footer a:hover {
+            text-decoration: underline;
+        }
+
         .alert {
             border-radius: 10px;
             border: none;
             margin-bottom: 20px;
             display: none;
+            padding: 12px 15px;
         }
 
         .alert-error {
             background: #fee;
             color: #c33;
+            border: 1px solid #fcc;
         }
 
         .alert-success {
             background: #efe;
             color: #3c3;
+            border: 1px solid #cfc;
+        }
+
+        .spinner {
+            display: none;
+            width: 16px;
+            height: 16px;
+            border: 2px solid #fff;
+            border-top: 2px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 10px;
+            vertical-align: middle;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .button-content {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .password-strength {
+            margin-top: 5px;
+            font-size: 0.85rem;
+            padding: 5px;
+            border-radius: 5px;
+            display: none;
+        }
+
+        .password-strength.weak {
+            background: #fee;
+            color: #c33;
+            display: block;
+        }
+
+        .password-strength.fair {
+            background: #ffe;
+            color: #880;
+            display: block;
+        }
+
+        .password-strength.good {
+            background: #efe;
+            color: #3c3;
+            display: block;
+        }
+
+        @media (max-width: 576px) {
+            .register-container {
+                padding: 30px 20px;
+            }
+
+            .register-header h1 {
+                font-size: 1.5rem;
+            }
+
+            .register-header i {
+                font-size: 2rem;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="register-container animate-in">
+    <div class="register-container">
         <div class="register-header">
-            <i class="fas fa-user-plus float-icon"></i>
-            <h1 class="gradient-text">Create Account</h1>
+            <i class="fas fa-user-plus"></i>
+            <h1>Create Account</h1>
+            <p>Join AI Crop Advisor Today</p>
         </div>
 
         <div id="alert" class="alert"></div>
 
+        <!-- Registration Form -->
         <form id="registerForm">
-            <div class="form-row">
-                <div class="form-group">
-                    <label for="fullName" class="form-label">Full Name</label>
-                    <input type="text" class="form-control" id="fullName" required>
-                </div>
-                <div class="form-group">
-                    <label for="email" class="form-label">Email Address</label>
-                    <input type="email" class="form-control" id="email" required>
-                </div>
+            <!-- Personal Information -->
+            <div class="form-row full">
+                <h5 style="color: var(--dark); margin-bottom: 15px;">
+                    <i class="fas fa-user"></i> Personal Information
+                </h5>
             </div>
 
             <div class="form-row">
                 <div class="form-group">
-                    <label for="password" class="form-label">Password</label>
-                    <input type="password" class="form-control" id="password" required>
+                    <label for="fullName" class="form-label">Full Name *</label>
+                    <input
+                        type="text"
+                        class="form-control"
+                        id="fullName"
+                        name="fullName"
+                        placeholder="Your full name"
+                        required
+                    >
                 </div>
                 <div class="form-group">
-                    <label for="phoneNumber" class="form-label">Phone Number</label>
-                    <input type="tel" class="form-control" id="phoneNumber" placeholder="10 digits" required>
+                    <label for="phone" class="form-label">Phone Number *</label>
+                    <input
+                        type="tel"
+                        class="form-control"
+                        id="phone"
+                        name="phoneNumber"
+                        placeholder="10-digit number"
+                        pattern="[0-9]{10}"
+                        required
+                    >
                 </div>
+            </div>
+
+            <div class="form-row full">
+                <div class="form-group">
+                    <label for="email" class="form-label"><i class="fas fa-envelope"></i> Email Address *</label>
+                    <input
+                        type="email"
+                        class="form-control"
+                        id="email"
+                        name="email"
+                        placeholder="your@email.com"
+                        required
+                    >
+                </div>
+            </div>
+
+            <!-- Security Information -->
+            <div class="form-row full">
+                <h5 style="color: var(--dark); margin-bottom: 15px; margin-top: 20px;">
+                    <i class="fas fa-lock"></i> Security (BCrypt Encrypted)
+                </h5>
+            </div>
+
+            <div class="form-row full">
+                <div class="form-group">
+                    <label for="password" class="form-label">Password *</label>
+                    <input
+                        type="password"
+                        class="form-control"
+                        id="password"
+                        name="password"
+                        placeholder="Min. 8 characters, 1 uppercase, 1 number"
+                        required
+                        minlength="8"
+                    >
+                    <div id="passwordStrength" class="password-strength"></div>
+                </div>
+            </div>
+
+            <div class="form-row full">
+                <div class="form-group">
+                    <label for="confirmPassword" class="form-label">Confirm Password *</label>
+                    <input
+                        type="password"
+                        class="form-control"
+                        id="confirmPassword"
+                        name="confirmPassword"
+                        placeholder="Re-enter your password"
+                        required
+                    >
+                </div>
+            </div>
+
+            <!-- Farm Information -->
+            <div class="form-row full">
+                <h5 style="color: var(--dark); margin-bottom: 15px; margin-top: 20px;">
+                    <i class="fas fa-map"></i> Farm Location
+                </h5>
             </div>
 
             <div class="form-row">
                 <div class="form-group">
-                    <label for="state" class="form-label">State</label>
-                    <input type="text" class="form-control" id="state" required>
+                    <label for="state" class="form-label">State *</label>
+                    <input
+                        type="text"
+                        class="form-control"
+                        id="state"
+                        name="state"
+                        placeholder="e.g., Andhra Pradesh"
+                        required
+                    >
                 </div>
                 <div class="form-group">
-                    <label for="district" class="form-label">District</label>
-                    <input type="text" class="form-control" id="district" required>
+                    <label for="district" class="form-label">District *</label>
+                    <input
+                        type="text"
+                        class="form-control"
+                        id="district"
+                        name="district"
+                        placeholder="e.g., Krishna"
+                        required
+                    >
                 </div>
             </div>
 
             <div class="form-row">
                 <div class="form-group">
                     <label for="latitude" class="form-label">Latitude</label>
-                    <input type="number" class="form-control" id="latitude" step="0.0001">
+                    <input
+                        type="number"
+                        class="form-control"
+                        id="latitude"
+                        name="latitude"
+                        placeholder="e.g., 16.5062"
+                        step="0.0001"
+                    >
                 </div>
                 <div class="form-group">
                     <label for="longitude" class="form-label">Longitude</label>
-                    <input type="number" class="form-control" id="longitude" step="0.0001">
+                    <input
+                        type="number"
+                        class="form-control"
+                        id="longitude"
+                        name="longitude"
+                        placeholder="e.g., 80.6480"
+                        step="0.0001"
+                    >
                 </div>
             </div>
 
-            <div class="form-group">
-                <label for="address" class="form-label">Address</label>
-                <input type="text" class="form-control" id="address">
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="address" class="form-label">Farm Address</label>
+                    <input
+                        type="text"
+                        class="form-control"
+                        id="address"
+                        name="address"
+                        placeholder="Your farm address"
+                    >
+                </div>
+                <div class="form-group">
+                    <label for="areaAcres" class="form-label">Farm Area (Acres)</label>
+                    <input
+                        type="number"
+                        class="form-control"
+                        id="areaAcres"
+                        name="areaAcres"
+                        placeholder="e.g., 5"
+                        step="0.1"
+                    >
+                </div>
             </div>
 
-            <div class="form-group">
-                <label for="areaAcres" class="form-label">Farm Area (Acres)</label>
-                <input type="number" class="form-control" id="areaAcres">
-            </div>
+            <!-- Buttons -->
+            <button type="submit" class="btn btn-register" id="registerBtn">
+                <div class="button-content">
+                    <span class="spinner" id="spinner"></span>
+                    <span id="btnText"><i class="fas fa-check"></i> Create Account</span>
+                </div>
+            </button>
 
-            <button type="submit" class="btn-register">Create Account</button>
+            <button type="button" class="btn btn-back" onclick="window.location.href='/api/login.html'">
+                <i class="fas fa-arrow-left"></i> Back to Login
+            </button>
         </form>
 
         <div class="register-footer">
-            Already have an account? <a href="login.html">Login here</a>
+            <p>Already have an account? <a href="/api/login.html">Login here</a></p>
+            <p>🌾 Welcome to the farming community</p>
         </div>
     </div>
 
     <script>
-        const API_URL = '/api';
+        const registerForm = document.getElementById('registerForm');
+        const registerBtn = document.getElementById('registerBtn');
+        const spinner = document.getElementById('spinner');
+        const btnText = document.getElementById('btnText');
+        const alertDiv = document.getElementById('alert');
+        const passwordInput = document.getElementById('password');
+        const passwordStrengthDiv = document.getElementById('passwordStrength');
 
-        document.getElementById('registerForm').addEventListener('submit', async (e) => {
+        // Password strength checker
+        passwordInput.addEventListener('input', () => {
+            const password = passwordInput.value;
+            let strength = 'weak';
+            let message = '❌ Weak password';
+
+            if (password.length >= 8) {
+                const hasUppercase = /[A-Z]/.test(password);
+                const hasNumber = /[0-9]/.test(password);
+                const hasSpecial = /[!@#$%^&*]/.test(password);
+
+                if (hasUppercase && hasNumber) {
+                    strength = 'good';
+                    message = '✅ Good password';
+                } else if (hasUppercase || hasNumber) {
+                    strength = 'fair';
+                    message = '⚠️ Fair password';
+                }
+            }
+
+            passwordStrengthDiv.className = `password-strength ${strength}`;
+            passwordStrengthDiv.textContent = message;
+        });
+
+        // Form submission
+        registerForm.addEventListener('submit', async (e) => {
             e.preventDefault();
 
-            const formData = {
-                fullName: document.getElementById('fullName').value,
-                email: document.getElementById('email').value,
-                password: document.getElementById('password').value,
-                phoneNumber: document.getElementById('phoneNumber').value,
-                state: document.getElementById('state').value,
-                district: document.getElementById('district').value,
-                latitude: parseFloat(document.getElementById('latitude').value) || null,
-                longitude: parseFloat(document.getElementById('longitude').value) || null,
-                address: document.getElementById('address').value,
-                areaAcres: parseInt(document.getElementById('areaAcres').value) || null
-            };
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            const fullName = document.getElementById('fullName').value;
+            const phoneNumber = document.getElementById('phone').value;
+            const state = document.getElementById('state').value;
+            const district = document.getElementById('district').value;
 
-            const btn = e.target.querySelector('.btn-register');
-            btn.disabled = true;
+            // Validation
+            if (!email || !password || !confirmPassword || !fullName || !phoneNumber || !state || !district) {
+                showAlert('Please fill in all required fields (*)', 'error');
+                return;
+            }
+
+            if (password !== confirmPassword) {
+                showAlert('Passwords do not match', 'error');
+                return;
+            }
+
+            if (password.length < 8) {
+                showAlert('Password must be at least 8 characters', 'error');
+                return;
+            }
+
+            if (!/[A-Z]/.test(password) || !/[0-9]/.test(password)) {
+                showAlert('Password must contain uppercase letter and number', 'error');
+                return;
+            }
+
+            if (phoneNumber.length !== 10 || !/^\d+$/.test(phoneNumber)) {
+                showAlert('Phone number must be 10 digits', 'error');
+                return;
+            }
+
+            // Show loading state
+            registerBtn.disabled = true;
+            spinner.style.display = 'inline-block';
+            btnText.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating Account...';
 
             try {
-                const response = await fetch(`${API_URL}/auth/register`, {
+                const response = await fetch('/api/auth/register', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(formData)
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        email: email,
+                        password: password,
+                        fullName: fullName,
+                        phoneNumber: phoneNumber,
+                        state: state,
+                        district: district,
+                        latitude: document.getElementById('latitude').value || null,
+                        longitude: document.getElementById('longitude').value || null,
+                        address: document.getElementById('address').value || null,
+                        areaAcres: document.getElementById('areaAcres').value || null
+                    })
                 });
 
                 const data = await response.json();
 
-                if (data.success) {
-                    localStorage.setItem('token', data.data.token);
-                    localStorage.setItem('user', JSON.stringify(data.data.user));
-                    showAlert('Registration successful! Redirecting...', 'success');
+                if (response.ok) {
+                    // Store user data if provided in response
+                    if (data.data) {
+                        localStorage.setItem('user', JSON.stringify(data.data.user));
+                        localStorage.setItem('userId', data.data.user.id);
+                    }
+                    showAlert('✅ Account created successfully! Redirecting to login...', 'success');
                     setTimeout(() => {
-                        window.location.href = 'dashboard.html';
-                    }, 1500);
+                        window.location.href = '/api/login.html';
+                    }, 2000);
                 } else {
-                    showAlert(data.error || 'Registration failed', 'error');
+                    showAlert('❌ ' + (data.message || 'Registration failed'), 'error');
                 }
             } catch (error) {
-                showAlert('Network error. Please try again.', 'error');
+                console.error('Registration error:', error);
+                showAlert('❌ An error occurred. Please try again.', 'error');
             } finally {
-                btn.disabled = false;
+                registerBtn.disabled = false;
+                spinner.style.display = 'none';
+                btnText.innerHTML = '<i class="fas fa-check"></i> Create Account';
             }
         });
 
         function showAlert(message, type) {
-            const alertDiv = document.getElementById('alert');
-            alertDiv.className = `alert alert-${type}`;
-            alertDiv.textContent = message;
+            alertDiv.innerHTML = message;
+            alertDiv.className = `alert alert-${type === 'error' ? 'error' : 'success'}`;
             alertDiv.style.display = 'block';
-        }
 
-        // Check if already logged in
-        if (localStorage.getItem('token')) {
-            window.location.href = 'dashboard.html';
+            if (type === 'success') {
+                setTimeout(() => {
+                    alertDiv.style.display = 'none';
+                }, 3000);
+            }
         }
     </script>
 </body>

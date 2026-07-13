@@ -31,7 +31,7 @@ public class CropPlantingController {
             @RequestBody Map<String, Object> request) {
 
         try {
-            User user = getOrCreateDefaultUser();
+            User user = userService.getCurrentAuthenticatedUser();
 
             Long cropId = toLong(request.get("cropId"));
             String sowingDateStr = (String) request.get("sowingDate");
@@ -75,7 +75,7 @@ public class CropPlantingController {
             @RequestBody Map<String, Object> request) {
 
         try {
-            User user = getOrCreateDefaultUser();
+            User user = userService.getCurrentAuthenticatedUser();
 
             Long cropId = toLong(request.get("cropId"));
             LocalDate plannedDate = LocalDate.parse((String) request.get("sowingDate"));
@@ -99,7 +99,7 @@ public class CropPlantingController {
     public ResponseEntity<ApiResponse<List<CropPlantingDTO>>> getUserPlantings() {
 
         try {
-            User user = getOrCreateDefaultUser();
+            User user = userService.getCurrentAuthenticatedUser();
 
             List<CropPlantingDTO> plantings = cropPlantingService.getUserPlantings(user);
             return ResponseEntity.ok(ApiResponse.success("Plantings retrieved successfully", plantings));
@@ -114,7 +114,7 @@ public class CropPlantingController {
             @PathVariable Long plantingId) {
 
         try {
-            User user = getOrCreateDefaultUser();
+            User user = userService.getCurrentAuthenticatedUser();
 
             CropPlantingDTO planting = cropPlantingService.getPlanting(plantingId, user);
             return ResponseEntity.ok(ApiResponse.success("Planting retrieved successfully", planting));
@@ -130,7 +130,7 @@ public class CropPlantingController {
             @RequestParam String status) {
 
         try {
-            User user = getOrCreateDefaultUser();
+            User user = userService.getCurrentAuthenticatedUser();
 
             CropPlanting.PlantingStatus plantingStatus = CropPlanting.PlantingStatus.valueOf(status);
             cropPlantingService.updatePlantingStatus(plantingId, plantingStatus, user);
@@ -148,7 +148,7 @@ public class CropPlantingController {
             @RequestParam String stage) {
 
         try {
-            User user = getOrCreateDefaultUser();
+            User user = userService.getCurrentAuthenticatedUser();
 
             CropPlanting.GrowthStage growthStage = CropPlanting.GrowthStage.valueOf(stage);
             cropPlantingService.updateGrowthStage(plantingId, growthStage, user);
@@ -164,7 +164,7 @@ public class CropPlantingController {
     public ResponseEntity<ApiResponse<List<CropPlantingDTO>>> getActivePlantings() {
 
         try {
-            User user = getOrCreateDefaultUser();
+            User user = userService.getCurrentAuthenticatedUser();
 
             List<CropPlantingDTO> plantings = cropPlantingService.getActivePlantings(user);
             return ResponseEntity.ok(ApiResponse.success("Active plantings retrieved", plantings));
@@ -174,21 +174,6 @@ public class CropPlantingController {
         }
     }
 
-    private User getOrCreateDefaultUser() {
-        String defaultEmail = "default@aicrop.com";
-        return userService.findByEmail(defaultEmail)
-                .orElseGet(() -> {
-                    User newUser = User.builder()
-                            .email(defaultEmail)
-                            .fullName("Public User")
-                            .phoneNumber("0000000000")
-                            .password("default")
-                            .role(User.UserRole.FARMER)
-                            .active(true)
-                            .build();
-                    return userService.createUser(newUser);
-                });
-    }
 
     private Long toLong(Object value) {
         if (value == null) return null;

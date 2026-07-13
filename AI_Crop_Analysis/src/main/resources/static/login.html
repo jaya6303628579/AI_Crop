@@ -6,7 +6,6 @@
     <title>Login - AI Crop Advisor</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="css/theme.css">
     <style>
         :root {
             --primary: #2ecc71;
@@ -15,7 +14,7 @@
         }
 
         body {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
             min-height: 100vh;
             display: flex;
             align-items: center;
@@ -30,6 +29,18 @@
             padding: 50px;
             width: 100%;
             max-width: 450px;
+            animation: slideUp 0.5s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .login-header {
@@ -41,16 +52,19 @@
             font-size: 3rem;
             color: var(--primary);
             margin-bottom: 15px;
+            display: block;
         }
 
         .login-header h1 {
             color: var(--dark);
             font-weight: 700;
-            margin-bottom: 10px;
+            margin-bottom: 5px;
+            font-size: 2rem;
         }
 
         .login-header p {
             color: #666;
+            margin-bottom: 0;
         }
 
         .form-group {
@@ -61,6 +75,7 @@
             color: var(--dark);
             font-weight: 600;
             margin-bottom: 10px;
+            display: block;
         }
 
         .form-control {
@@ -69,11 +84,13 @@
             padding: 12px 15px;
             font-size: 1rem;
             transition: all 0.3s ease;
+            width: 100%;
         }
 
         .form-control:focus {
             border-color: var(--primary);
             box-shadow: 0 0 0 0.2rem rgba(46, 204, 113, 0.25);
+            outline: none;
         }
 
         .btn-login {
@@ -86,6 +103,8 @@
             transition: all 0.3s ease;
             width: 100%;
             margin-top: 10px;
+            cursor: pointer;
+            font-size: 1rem;
         }
 
         .btn-login:hover {
@@ -98,10 +117,40 @@
             transform: translateY(0);
         }
 
+        .btn-login:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .btn-register {
+            background: linear-gradient(135deg, var(--secondary) 0%, #2980b9 100%);
+            border: none;
+            color: white;
+            padding: 12px;
+            border-radius: 10px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            width: 100%;
+            margin-top: 10px;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        .btn-register:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(52, 152, 219, 0.3);
+            color: white;
+        }
+
+        .btn-register:active {
+            transform: translateY(0);
+        }
+
         .login-footer {
             text-align: center;
             margin-top: 30px;
             color: #666;
+            font-size: 0.9rem;
         }
 
         .login-footer a {
@@ -119,108 +168,277 @@
             border: none;
             margin-bottom: 20px;
             display: none;
+            padding: 12px 15px;
         }
 
         .alert-error {
             background: #fee;
             color: #c33;
+            border: 1px solid #fcc;
         }
 
         .alert-success {
             background: #efe;
             color: #3c3;
+            border: 1px solid #cfc;
         }
 
         .spinner {
             display: none;
+            width: 16px;
+            height: 16px;
+            border: 2px solid #fff;
+            border-top: 2px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
             margin-right: 10px;
+            vertical-align: middle;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .button-content {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .divider {
+            text-align: center;
+            margin: 30px 0 20px;
+            color: #999;
+            position: relative;
+        }
+
+        .divider::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: #e0e0e0;
+        }
+
+        .divider span {
+            background: white;
+            padding: 0 10px;
+            position: relative;
+        }
+
+        @media (max-width: 576px) {
+            .login-container {
+                padding: 30px 20px;
+            }
+
+            .login-header h1 {
+                font-size: 1.5rem;
+            }
+
+            .login-header i {
+                font-size: 2rem;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="login-container animate-in">
+    <div class="login-container">
         <div class="login-header">
-            <i class="fas fa-leaf float-icon"></i>
-            <h1 class="gradient-text">AI Crop Advisor</h1>
-            <p>Smart Farming Starts Here</p>
+            <i class="fas fa-leaf"></i>
+            <h1>AI Crop Advisor</h1>
+            <p>Smart Farming Solutions</p>
         </div>
 
         <div id="alert" class="alert"></div>
 
-        <form id="loginForm">
+        <!-- Login Form -->
+        <form id="loginForm" method="post" action="/api/auth/login-form">
             <div class="form-group">
-                <label for="email" class="form-label">Email Address</label>
-                <input type="email" class="form-control" id="email" placeholder="your@email.com" required>
+                <label for="email" class="form-label">
+                    <i class="fas fa-envelope"></i> Email Address
+                </label>
+                <input
+                    type="email"
+                    class="form-control"
+                    id="email"
+                    name="email"
+                    placeholder="Enter your email"
+                    required
+                    autocomplete="email"
+                >
             </div>
 
             <div class="form-group">
-                <label for="password" class="form-label">Password</label>
-                <input type="password" class="form-control" id="password" placeholder="••••••••" required>
+                <label for="password" class="form-label">
+                    <i class="fas fa-lock"></i> Password
+                </label>
+                <input
+                    type="password"
+                    class="form-control"
+                    id="password"
+                    name="password"
+                    placeholder="Enter your password"
+                    required
+                    autocomplete="current-password"
+                >
             </div>
 
-            <button type="submit" class="btn-login">
-                <span class="spinner"><i class="fas fa-spinner fa-spin"></i></span>
-                Sign In
+            <button type="submit" class="btn btn-login" id="loginBtn">
+                <div class="button-content">
+                    <span class="spinner" id="spinner"></span>
+                    <span id="btnText">Login</span>
+                </div>
             </button>
         </form>
 
+        <div class="divider">
+            <span>Don't have an account?</span>
+        </div>
+
+        <!-- Get Started Button -->
+        <button type="button" class="btn btn-register" onclick="window.location.href='/api/register.html'">
+            <i class="fas fa-user-plus"></i> Get Started (Register)
+        </button>
+
         <div class="login-footer">
-            Don't have an account? <a href="register.html">Register here</a>
+            <p>🌾 Helping farmers make smarter decisions with AI</p>
         </div>
     </div>
 
     <script>
-        const API_URL = '/api';
+        // Check if already logged in
+        let redirectCheckDone = false;
+        window.addEventListener('load', async () => {
+            if (redirectCheckDone) return;
+            redirectCheckDone = true;
 
-        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            try {
+                const response = await fetch('/api/auth/current-user');
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.data) {
+                        localStorage.setItem('user', JSON.stringify(data.data));
+                        localStorage.setItem('userId', data.data.id);
+                        window.location.href = '/api/dashboard.html';
+                        return;
+                    }
+                }
+                // 401 is expected for non-authenticated users - just stay on login page
+            } catch (error) {
+                // Silent - not logged in yet
+                console.debug('Current user check failed (expected if not logged in)');
+            }
+
+            // Check for error parameter in URL (from failed login attempt)
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('error') === 'true') {
+                showAlert('Invalid email or password', 'error');
+            }
+        });
+
+        const loginForm = document.getElementById('loginForm');
+        const loginBtn = document.getElementById('loginBtn');
+        const spinner = document.getElementById('spinner');
+        const btnText = document.getElementById('btnText');
+        const alertDiv = document.getElementById('alert');
+        let isSubmitting = false;
+
+        loginForm.addEventListener('submit', async (e) => {
             e.preventDefault();
+
+            if (isSubmitting) return;
+            isSubmitting = true;
 
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
-            const btn = e.target.querySelector('.btn-login');
-            const spinner = e.target.querySelector('.spinner');
 
-            btn.disabled = true;
+            // Validation
+            if (!email || !password) {
+                showAlert('Please fill in all fields', 'error');
+                isSubmitting = false;
+                return;
+            }
+
+            // Show loading state
+            loginBtn.disabled = true;
             spinner.style.display = 'inline-block';
+            btnText.textContent = 'Logging in...';
 
             try {
-                const response = await fetch(`${API_URL}/auth/login`, {
+                console.log('🔐 Attempting login for:', email);
+                const response = await fetch('/api/auth/login-form', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email, password })
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `email=${encodeURIComponent(email)}&password=${encodeURIComponent(password)}`,
+                    credentials: 'include'
                 });
 
-                const data = await response.json();
+                console.log('📊 Response status:', response.status);
 
-                if (data.success) {
-                    localStorage.setItem('token', data.data.token);
-                    localStorage.setItem('user', JSON.stringify(data.data.user));
-                    showAlert('Login successful! Redirecting...', 'success');
+                if (response.status === 401) {
+                    console.warn('❌ Invalid credentials');
+                    showAlert('❌ Invalid email or password', 'error');
+                    isSubmitting = false;
+                    return;
+                }
+
+                if (response.ok) {
+                    // Parse response and store JWT token + user data
+                    const data = await response.json();
+                    console.log('✅ Login successful');
+
+                    if (data.data) {
+                        localStorage.setItem('token', data.data.token);
+                        localStorage.setItem('user', JSON.stringify(data.data.user));
+                        localStorage.setItem('userId', data.data.user.id);
+                        console.log('💾 User data stored');
+                    }
+
+                    showAlert('✅ Login successful! Redirecting...', 'success');
+                    // Use a longer timeout to ensure user data is stored
                     setTimeout(() => {
-                        window.location.href = 'dashboard.html';
+                        window.location.href = '/api/dashboard.html';
                     }, 1500);
                 } else {
-                    showAlert(data.error || 'Login failed', 'error');
+                    console.error('❌ Login failed with status:', response.status);
+                    const errorText = await response.text();
+                    console.error('Response:', errorText);
+                    showAlert('❌ Login failed. Check your credentials and try again.', 'error');
+                    isSubmitting = false;
                 }
             } catch (error) {
-                showAlert('Network error. Please try again.', 'error');
+                console.error('❌ Login error:', error);
+                showAlert('❌ Network error. Please check your connection and try again.', 'error');
+                isSubmitting = false;
             } finally {
-                btn.disabled = false;
+                loginBtn.disabled = false;
                 spinner.style.display = 'none';
+                btnText.textContent = 'Login';
             }
         });
 
         function showAlert(message, type) {
-            const alertDiv = document.getElementById('alert');
-            alertDiv.className = `alert alert-${type}`;
             alertDiv.textContent = message;
+            alertDiv.className = `alert alert-${type === 'error' ? 'error' : 'success'}`;
             alertDiv.style.display = 'block';
+
+            if (type === 'success') {
+                setTimeout(() => {
+                    alertDiv.style.display = 'none';
+                }, 3000);
+            }
         }
 
-        // Check if already logged in
-        if (localStorage.getItem('token')) {
-            window.location.href = 'dashboard.html';
-        }
+        // Enter key to submit
+        document.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && document.activeElement.tagName !== 'TEXTAREA') {
+                loginForm.dispatchEvent(new Event('submit'));
+            }
+        });
     </script>
 </body>
 </html>

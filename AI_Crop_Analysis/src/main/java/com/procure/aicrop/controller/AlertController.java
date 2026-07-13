@@ -24,7 +24,7 @@ public class AlertController {
     public ResponseEntity<ApiResponse<List<AlertDTO>>> getUserAlerts() {
 
         try {
-            User user = getOrCreateDefaultUser();
+            User user = userService.getCurrentAuthenticatedUser();
             List<AlertDTO> alerts = alertService.getUserAlerts(user);
             return ResponseEntity.ok(ApiResponse.success("Alerts retrieved successfully", alerts));
         } catch (RuntimeException e) {
@@ -37,7 +37,7 @@ public class AlertController {
     public ResponseEntity<ApiResponse<List<AlertDTO>>> getUnreadAlerts() {
 
         try {
-            User user = getOrCreateDefaultUser();
+            User user = userService.getCurrentAuthenticatedUser();
             List<AlertDTO> alerts = alertService.getUnreadAlerts(user);
             return ResponseEntity.ok(ApiResponse.success("Unread alerts retrieved", alerts));
         } catch (RuntimeException e) {
@@ -50,7 +50,7 @@ public class AlertController {
     public ResponseEntity<ApiResponse<List<AlertDTO>>> getCriticalAlerts() {
 
         try {
-            User user = getOrCreateDefaultUser();
+            User user = userService.getCurrentAuthenticatedUser();
             List<AlertDTO> alerts = alertService.getCriticalAlerts(user);
             return ResponseEntity.ok(ApiResponse.success("Critical alerts retrieved", alerts));
         } catch (RuntimeException e) {
@@ -63,7 +63,7 @@ public class AlertController {
     public ResponseEntity<ApiResponse<String>> markAsRead(@PathVariable Long alertId) {
 
         try {
-            User user = getOrCreateDefaultUser();
+            User user = userService.getCurrentAuthenticatedUser();
             alertService.markAsRead(alertId, user);
             return ResponseEntity.ok(ApiResponse.success("Alert marked as read", null));
         } catch (RuntimeException e) {
@@ -76,7 +76,7 @@ public class AlertController {
     public ResponseEntity<ApiResponse<String>> markAllAsRead() {
 
         try {
-            User user = getOrCreateDefaultUser();
+            User user = userService.getCurrentAuthenticatedUser();
             alertService.markAllAsRead(user);
             return ResponseEntity.ok(ApiResponse.success("All alerts marked as read", null));
         } catch (RuntimeException e) {
@@ -89,7 +89,7 @@ public class AlertController {
     public ResponseEntity<ApiResponse<String>> deleteAlert(@PathVariable Long alertId) {
 
         try {
-            User user = getOrCreateDefaultUser();
+            User user = userService.getCurrentAuthenticatedUser();
             alertService.deleteAlert(alertId, user);
             return ResponseEntity.ok(ApiResponse.success("Alert deleted successfully", null));
         } catch (RuntimeException e) {
@@ -98,19 +98,4 @@ public class AlertController {
         }
     }
 
-    private User getOrCreateDefaultUser() {
-        String defaultEmail = "default@aicrop.com";
-        return userService.findByEmail(defaultEmail)
-                .orElseGet(() -> {
-                    User newUser = User.builder()
-                            .email(defaultEmail)
-                            .fullName("Public User")
-                            .phoneNumber("0000000000")
-                            .password("default")
-                            .role(User.UserRole.FARMER)
-                            .active(true)
-                            .build();
-                    return userService.createUser(newUser);
-                });
-    }
 }

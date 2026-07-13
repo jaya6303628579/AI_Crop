@@ -63,4 +63,12 @@ public class AuthService {
     public String getUserEmailFromToken(String token) {
         return jwtTokenProvider.getEmailFromToken(token);
     }
+
+    public String generateToken(String email) {
+        return jwtTokenProvider.generateToken(email);
+    }
+
+    public boolean validatePassword(String rawPassword, String encodedPassword) {
+        return passwordEncoder.matches(rawPassword, encodedPassword);
+    }
 }

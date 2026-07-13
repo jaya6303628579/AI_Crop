@@ -29,7 +29,7 @@ public class MonitoringController {
     @PostMapping("/plantings/{plantingId}/run")
     public ResponseEntity<ApiResponse<String>> runForPlanting(@PathVariable Long plantingId) {
         try {
-            User user = getOrCreateDefaultUser();
+            User user = userService.getCurrentAuthenticatedUser();
             CropPlanting planting = cropPlantingRepository.findByIdAndUser(plantingId, user)
                     .orElseThrow(() -> new RuntimeException("Planting not found"));
 
@@ -40,19 +40,4 @@ public class MonitoringController {
         }
     }
 
-    private User getOrCreateDefaultUser() {
-        String defaultEmail = "default@aicrop.com";
-        return userService.findByEmail(defaultEmail)
-                .orElseGet(() -> {
-                    User newUser = User.builder()
-                            .email(defaultEmail)
-                            .fullName("Public User")
-                            .phoneNumber("0000000000")
-                            .password("default")
-                            .role(User.UserRole.FARMER)
-                            .active(true)
-                            .build();
-                    return userService.createUser(newUser);
-                });
-    }
 }

@@ -340,27 +340,81 @@
     <script>
         const API_URL = '/api';
         const token = localStorage.getItem('token');
-        const user = JSON.parse(localStorage.getItem('user'));
+        let user = JSON.parse(localStorage.getItem('user'));
+        let authCheckDone = false;
 
-        if (!token) {
-            window.location.href = 'login.html';
+        // Check authentication on page load using JWT token
+        async function checkAuthentication() {
+            if (authCheckDone) return;
+            authCheckDone = true;
+
+            // If no token, redirect to login
+            if (!token) {
+                localStorage.removeItem('user');
+                localStorage.removeItem('userId');
+                window.location.href = '/api/login.html';
+                return;
+            }
+
+            try {
+                // Validate token by fetching current user
+                const response = await fetch(`${API_URL}/auth/current-user`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.data) {
+                        // Update user data from server
+                        localStorage.setItem('user', JSON.stringify(data.data));
+                        localStorage.setItem('userId', data.data.id);
+                        user = data.data;
+                        initializeDashboard();
+                        return;
+                    }
+                }
+            } catch (error) {
+                console.debug('Auth check error:', error);
+            }
+
+            // Token invalid or expired, redirect to login
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            localStorage.removeItem('userId');
+            window.location.href = '/api/login.html';
         }
 
-        // Display user name
-        if (user) {
-            document.getElementById('userName').textContent = user.fullName;
+        // Initialize dashboard after auth confirmed
+        function initializeDashboard() {
+            // Display user name
+            if (user) {
+                document.getElementById('userName').textContent = user.fullName;
+                loadDashboardData();
+            }
         }
 
         // Logout
-        document.getElementById('logoutBtn').addEventListener('click', (e) => {
+        document.getElementById('logoutBtn').addEventListener('click', async (e) => {
             e.preventDefault();
+            try {
+                await fetch(`${API_URL}/auth/logout`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}` },
+                    credentials: 'include'
+                });
+            } catch (error) {
+                console.error('Logout error:', error);
+            }
             localStorage.removeItem('token');
             localStorage.removeItem('user');
-            window.location.href = 'login.html';
+            localStorage.removeItem('userId');
+            window.location.href = '/api/login.html';
         });
 
         // Load dashboard data
         async function loadDashboardData() {
+            if (!token) return;
+
             try {
                 const headers = { 'Authorization': `Bearer ${token}` };
 
@@ -414,8 +468,9 @@
             }
         }
 
-        loadDashboardData();
-        // Refresh every 5 minutes
+        // Check authentication and initialize
+        checkAuthentication();
+        // Refresh dashboard data every 5 minutes
         setInterval(loadDashboardData, 5 * 60 * 1000);
     </script>
 </body>

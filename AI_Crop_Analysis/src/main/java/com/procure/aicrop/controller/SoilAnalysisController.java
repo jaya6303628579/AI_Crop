@@ -28,7 +28,7 @@ public class SoilAnalysisController {
             @RequestParam("image") MultipartFile imageFile) {
 
         try {
-            User user = getOrCreateDefaultUser();
+            User user = userService.getCurrentAuthenticatedUser();
 
             if (imageFile.isEmpty()) {
                 return ResponseEntity.badRequest()
@@ -50,7 +50,7 @@ public class SoilAnalysisController {
     public ResponseEntity<ApiResponse<List<SoilAnalysisDTO>>> getUserAnalyses() {
 
         try {
-            User user = getOrCreateDefaultUser();
+            User user = userService.getCurrentAuthenticatedUser();
             List<SoilAnalysisDTO> analyses = soilAnalysisService.getUserSoilAnalyses(user);
             return ResponseEntity.ok(ApiResponse.success("Analyses retrieved successfully", analyses));
         } catch (RuntimeException e) {
@@ -63,7 +63,7 @@ public class SoilAnalysisController {
     public ResponseEntity<ApiResponse<SoilAnalysisDTO>> getLatestAnalysis() {
 
         try {
-            User user = getOrCreateDefaultUser();
+            User user = userService.getCurrentAuthenticatedUser();
             Optional<SoilAnalysisDTO> analysis = soilAnalysisService.getLatestSoilAnalysis(user);
 
             if (analysis.isEmpty()) {
@@ -82,7 +82,7 @@ public class SoilAnalysisController {
     public ResponseEntity<ApiResponse<SoilAnalysisDTO>> getAnalysis(@PathVariable Long analysisId) {
 
         try {
-            User user = getOrCreateDefaultUser();
+            User user = userService.getCurrentAuthenticatedUser();
             SoilAnalysisDTO analysis = soilAnalysisService.getSoilAnalysis(analysisId, user);
             return ResponseEntity.ok(ApiResponse.success("Analysis retrieved successfully", analysis));
         } catch (RuntimeException e) {
@@ -95,7 +95,7 @@ public class SoilAnalysisController {
     public ResponseEntity<ApiResponse<String>> deleteAnalysis(@PathVariable Long analysisId) {
 
         try {
-            User user = getOrCreateDefaultUser();
+            User user = userService.getCurrentAuthenticatedUser();
             soilAnalysisService.deleteSoilAnalysis(analysisId, user);
             return ResponseEntity.ok(ApiResponse.success("Analysis deleted successfully", null));
         } catch (IOException e) {
@@ -107,19 +107,4 @@ public class SoilAnalysisController {
         }
     }
 
-    private User getOrCreateDefaultUser() {
-        String defaultEmail = "default@aicrop.com";
-        return userService.findByEmail(defaultEmail)
-                .orElseGet(() -> {
-                    User newUser = User.builder()
-                            .email(defaultEmail)
-                            .fullName("Public User")
-                            .phoneNumber("0000000000")
-                            .password("default")
-                            .role(User.UserRole.FARMER)
-                            .active(true)
-                            .build();
-                    return userService.createUser(newUser);
-                });
-    }
 }
