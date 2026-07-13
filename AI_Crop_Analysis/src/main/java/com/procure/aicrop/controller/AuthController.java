@@ -147,7 +147,7 @@ public class AuthController {
     }
 
     private jakarta.servlet.http.Cookie createTokenCookie(String token, int maxAgeSeconds) {
-        jakarta.servlet.http.Cookie cookie = new jakarta.servlet.http.Cookie("Authorization", "Bearer " + token);
+        jakarta.servlet.http.Cookie cookie = new jakarta.servlet.http.Cookie("Authorization", token);
         cookie.setHttpOnly(true);
         cookie.setSecure(true);
         cookie.setPath("/api");
