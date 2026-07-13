@@ -339,17 +339,34 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         const API_URL = '/api';
-        const token = localStorage.getItem('token');
-        let user = JSON.parse(localStorage.getItem('user'));
         let authCheckDone = false;
+        let currentUser = null;
+        let currentToken = null;
+
+        // Get fresh token from localStorage
+        function getAuthToken() {
+            return localStorage.getItem('token');
+        }
+
+        // Get fresh user from localStorage
+        function getAuthUser() {
+            const userStr = localStorage.getItem('user');
+            return userStr ? JSON.parse(userStr) : null;
+        }
 
         // Check authentication on page load using JWT token
         async function checkAuthentication() {
             if (authCheckDone) return;
             authCheckDone = true;
 
+            currentToken = getAuthToken();
+            currentUser = getAuthUser();
+
+            console.log('Auth Check - Token present:', !!currentToken, 'User present:', !!currentUser);
+
             // If no token, redirect to login
-            if (!token) {
+            if (!currentToken) {
+                console.warn('No token found, redirecting to login');
                 localStorage.removeItem('user');
                 localStorage.removeItem('userId');
                 window.location.href = '/api/login.html';
@@ -359,25 +376,30 @@
             try {
                 // Validate token by fetching current user
                 const response = await fetch(`${API_URL}/auth/current-user`, {
-                    headers: { 'Authorization': `Bearer ${token}` }
+                    headers: { 'Authorization': `Bearer ${currentToken}` },
+                    credentials: 'include'
                 });
 
                 if (response.ok) {
                     const data = await response.json();
                     if (data.data) {
+                        console.log('Auth Check - Token valid, user:', data.data.email);
                         // Update user data from server
                         localStorage.setItem('user', JSON.stringify(data.data));
                         localStorage.setItem('userId', data.data.id);
-                        user = data.data;
+                        currentUser = data.data;
                         initializeDashboard();
                         return;
                     }
+                } else if (response.status === 401) {
+                    console.warn('Auth Check - Token invalid (401), redirecting to login');
                 }
             } catch (error) {
-                console.debug('Auth check error:', error);
+                console.error('Auth check error:', error);
             }
 
             // Token invalid or expired, redirect to login
+            console.warn('Auth failed, clearing localStorage and redirecting to login');
             localStorage.removeItem('token');
             localStorage.removeItem('user');
             localStorage.removeItem('userId');
@@ -387,8 +409,8 @@
         // Initialize dashboard after auth confirmed
         function initializeDashboard() {
             // Display user name
-            if (user) {
-                document.getElementById('userName').textContent = user.fullName;
+            if (currentUser) {
+                document.getElementById('userName').textContent = currentUser.fullName || currentUser.email;
                 loadDashboardData();
             }
         }
@@ -396,12 +418,15 @@
         // Logout
         document.getElementById('logoutBtn').addEventListener('click', async (e) => {
             e.preventDefault();
+            const token = getAuthToken();
             try {
-                await fetch(`${API_URL}/auth/logout`, {
-                    method: 'POST',
-                    headers: { 'Authorization': `Bearer ${token}` },
-                    credentials: 'include'
-                });
+                if (token) {
+                    await fetch(`${API_URL}/auth/logout`, {
+                        method: 'POST',
+                        headers: { 'Authorization': `Bearer ${token}` },
+                        credentials: 'include'
+                    });
+                }
             } catch (error) {
                 console.error('Logout error:', error);
             }
@@ -413,54 +438,72 @@
 
         // Load dashboard data
         async function loadDashboardData() {
-            if (!token) return;
+            const token = getAuthToken();
+            if (!token) {
+                console.warn('No token available for dashboard data load');
+                return;
+            }
 
             try {
-                const headers = { 'Authorization': `Bearer ${token}` };
+                const headers = {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                };
 
                 // Load plantings
                 const plantingsRes = await fetch(`${API_URL}/plantings`, { headers });
-                const plantingsData = await plantingsRes.json();
-                if (plantingsData.success) {
-                    const plantings = plantingsData.data;
-                    document.getElementById('activePlantings').textContent =
-                        plantings.filter(p => p.status === 'SOWN' || p.status === 'MONITORING').length;
-                    document.getElementById('harvestedCrops').textContent =
-                        plantings.filter(p => p.status === 'HARVESTED').length;
+                if (plantingsRes.status === 401) {
+                    console.warn('Plantings: Token expired, redirecting to login');
+                    redirectToLogin();
+                    return;
+                }
+                if (plantingsRes.ok) {
+                    const plantingsData = await plantingsRes.json();
+                    if (plantingsData.success) {
+                        const plantings = plantingsData.data;
+                        document.getElementById('activePlantings').textContent =
+                            plantings.filter(p => p.status === 'SOWN' || p.status === 'MONITORING').length;
+                        document.getElementById('harvestedCrops').textContent =
+                            plantings.filter(p => p.status === 'HARVESTED').length;
+                    }
                 }
 
                 // Load soil analyses
                 const soilRes = await fetch(`${API_URL}/soil/analyses`, { headers });
-                const soilData = await soilRes.json();
-                if (soilData.success) {
-                    document.getElementById('soilAnalyses').textContent = soilData.data.length;
+                if (soilRes.ok) {
+                    const soilData = await soilRes.json();
+                    if (soilData.success) {
+                        document.getElementById('soilAnalyses').textContent = soilData.data.length;
+                    }
                 }
 
                 // Load alerts
                 const alertsRes = await fetch(`${API_URL}/alerts`, { headers });
-                const alertsData = await alertsRes.json();
-                if (alertsData.success) {
-                    const alerts = alertsData.data;
-                    const unread = alerts.filter(a => !a.isRead).length;
-                    document.getElementById('unreadAlerts').textContent = unread;
+                if (alertsRes.ok) {
+                    const alertsData = await alertsRes.json();
+                    if (alertsData.success) {
+                        const alerts = alertsData.data;
+                        const unread = alerts.filter(a => !a.isRead).length;
+                        document.getElementById('unreadAlerts').textContent = unread;
 
-                    // Show recent alerts
-                    const recentAlerts = alerts.slice(0, 3);
-                    const alertContainer = document.getElementById('recentAlertsContainer');
+                        // Show recent alerts
+                        const recentAlerts = alerts.slice(0, 3);
+                        const alertContainer = document.getElementById('recentAlertsContainer');
 
-                    if (recentAlerts.length === 0) {
-                        alertContainer.innerHTML = '<p class="text-muted text-center">No alerts at the moment</p>';
-                    } else {
-                        alertContainer.innerHTML = recentAlerts.map(alert => `
-                            <div class="alert-item ${alert.severity === 'CRITICAL' ? 'critical' : ''}">
-                                <div>
-                                    <i class="fas fa-exclamation-circle"></i>
-                                    <strong>${alert.title}</strong>
-                                    <p style="margin: 5px 0 0 0; color: #666;">${alert.message}</p>
+                        if (recentAlerts.length === 0) {
+                            alertContainer.innerHTML = '<p class="text-muted text-center">No alerts at the moment</p>';
+                        } else {
+                            alertContainer.innerHTML = recentAlerts.map(alert => `
+                                <div class="alert-item ${alert.severity === 'CRITICAL' ? 'critical' : ''}">
+                                    <div>
+                                        <i class="fas fa-exclamation-circle"></i>
+                                        <strong>${alert.title}</strong>
+                                        <p style="margin: 5px 0 0 0; color: #666;">${alert.message}</p>
+                                    </div>
+                                    <span style="white-space: nowrap; margin-left: 10px;">${new Date(alert.alertTime).toLocaleDateString()}</span>
                                 </div>
-                                <span style="white-space: nowrap; margin-left: 10px;">${new Date(alert.alertTime).toLocaleDateString()}</span>
-                            </div>
-                        `).join('');
+                            `).join('');
+                        }
                     }
                 }
             } catch (error) {
@@ -468,8 +511,15 @@
             }
         }
 
+        function redirectToLogin() {
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            localStorage.removeItem('userId');
+            window.location.href = '/api/login.html';
+        }
+
         // Check authentication and initialize
-        checkAuthentication();
+        window.addEventListener('load', checkAuthentication);
         // Refresh dashboard data every 5 minutes
         setInterval(loadDashboardData, 5 * 60 * 1000);
     </script>
