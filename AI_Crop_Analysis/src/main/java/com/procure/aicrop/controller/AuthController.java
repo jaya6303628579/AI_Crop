@@ -163,6 +163,16 @@ public class AuthController {
             log.info("Logout request for user: {}", auth.getName());
             new SecurityContextLogoutHandler().logout(request, response, auth);
         }
+
+        // Clear the JWT cookie
+        jakarta.servlet.http.Cookie cookie = new jakarta.servlet.http.Cookie("Authorization", "");
+        cookie.setHttpOnly(true);
+        cookie.setSecure(true);
+        cookie.setPath("/api");
+        cookie.setMaxAge(0); // This deletes the cookie
+        response.addCookie(cookie);
+
+        log.info("Logout: JWT cookie cleared");
         return ResponseEntity.ok(ApiResponse.success("Logout successful", "User logged out"));
     }
 

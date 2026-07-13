@@ -314,21 +314,37 @@
             if (redirectCheckDone) return;
             redirectCheckDone = true;
 
-            try {
-                const response = await fetch('/api/auth/current-user');
-                if (response.ok) {
-                    const data = await response.json();
-                    if (data.data) {
-                        localStorage.setItem('user', JSON.stringify(data.data));
-                        localStorage.setItem('userId', data.data.id);
-                        window.location.href = '/api/dashboard.html';
-                        return;
+            // Only check if we have a token in localStorage
+            const token = localStorage.getItem('token');
+            if (token) {
+                try {
+                    console.log('Login page: Token found in localStorage, checking validity');
+                    const response = await fetch('/api/auth/current-user', {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                    if (response.ok) {
+                        const data = await response.json();
+                        if (data.data) {
+                            console.log('Login page: Token valid, redirecting to dashboard');
+                            localStorage.setItem('user', JSON.stringify(data.data));
+                            localStorage.setItem('userId', data.data.id);
+                            window.location.href = '/api/dashboard.html';
+                            return;
+                        }
+                    } else if (response.status === 401) {
+                        console.warn('Login page: Token invalid (401), staying on login');
+                        localStorage.removeItem('token');
+                        localStorage.removeItem('user');
+                        localStorage.removeItem('userId');
                     }
+                } catch (error) {
+                    console.error('Login page: Auth check error:', error);
+                    localStorage.removeItem('token');
+                    localStorage.removeItem('user');
+                    localStorage.removeItem('userId');
                 }
-                // 401 is expected for non-authenticated users - just stay on login page
-            } catch (error) {
-                // Silent - not logged in yet
-                console.debug('Current user check failed (expected if not logged in)');
+            } else {
+                console.log('Login page: No token in localStorage, staying on login');
             }
 
             // Check for error parameter in URL (from failed login attempt)

@@ -418,22 +418,35 @@
         // Logout
         document.getElementById('logoutBtn').addEventListener('click', async (e) => {
             e.preventDefault();
+            console.log('Logout: Starting logout process');
+
             const token = getAuthToken();
             try {
                 if (token) {
-                    await fetch(`${API_URL}/auth/logout`, {
+                    console.log('Logout: Sending logout request to server');
+                    const response = await fetch(`${API_URL}/auth/logout`, {
                         method: 'POST',
                         headers: { 'Authorization': `Bearer ${token}` },
                         credentials: 'include'
                     });
+                    console.log('Logout: Server response status:', response.status);
                 }
             } catch (error) {
-                console.error('Logout error:', error);
+                console.error('Logout: Error calling logout endpoint:', error);
             }
+
+            // Clear all authentication data
+            console.log('Logout: Clearing localStorage');
             localStorage.removeItem('token');
             localStorage.removeItem('user');
             localStorage.removeItem('userId');
-            window.location.href = '/api/login.html';
+            authCheckDone = false; // Reset auth check flag
+
+            console.log('Logout: Redirecting to login page');
+            // Use a slight delay to ensure cookies are cleared
+            setTimeout(() => {
+                window.location.href = '/api/login.html';
+            }, 100);
         });
 
         // Load dashboard data
