@@ -16,7 +16,10 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
 import java.util.Base64;
+import java.util.TreeMap;
 
 @Service
 @RequiredArgsConstructor
@@ -46,15 +49,26 @@ public class CloudinaryService {
         try {
             log.info("Uploading soil image to Cloudinary: {}", file.getOriginalFilename());
 
-            // Build upload URL: https://api.cloudinary.com/v1_1/{cloud_name}/image/upload
+            // Build upload URL
             String uploadUrl = "https://api.cloudinary.com/v1_1/" + cloudName + "/image/upload";
 
-            // Prepare form data
+            // Create timestamp
+            long timestamp = System.currentTimeMillis() / 1000;
+
+            // Prepare form data with signature
             MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
             body.add("file", file.getResource());
-            body.add("api_key", apiKey);
             body.add("folder", soilAnalysisFolder);
             body.add("public_id", generatePublicId(file.getOriginalFilename()));
+            body.add("api_key", apiKey);
+            body.add("timestamp", String.valueOf(timestamp));
+
+            // Generate signature for authenticated upload
+            String signature = generateSignature(soilAnalysisFolder, timestamp);
+            body.add("signature", signature);
+
+            log.debug("Upload params - folder: {}, timestamp: {}, signature: {}",
+                    soilAnalysisFolder, timestamp, signature);
 
             // Set headers
             HttpHeaders headers = new HttpHeaders();
@@ -72,6 +86,9 @@ public class CloudinaryService {
                 return imageUrl;
             } else {
                 log.error("Failed to upload image: HTTP {}", response.getStatusCode());
+                if (response.getBody() != null) {
+                    log.error("Response body: {}", response.getBody());
+                }
                 throw new RuntimeException("Failed to upload image to Cloudinary");
             }
 
@@ -81,6 +98,28 @@ public class CloudinaryService {
         } catch (Exception e) {
             log.error("Error uploading soil image to Cloudinary: {}", e.getMessage(), e);
             throw new RuntimeException("Failed to upload image to Cloudinary: " + e.getMessage());
+        }
+    }
+
+    private String generateSignature(String folder, long timestamp) {
+        try {
+            // Create signature string: folder=<folder>&timestamp=<timestamp><api_secret>
+            String toSign = "folder=" + folder + "&timestamp=" + timestamp + apiSecret;
+
+            // SHA1 hash
+            MessageDigest md = MessageDigest.getInstance("SHA-1");
+            byte[] messageDigest = md.digest(toSign.getBytes(StandardCharsets.UTF_8));
+
+            // Convert to hex string
+            StringBuilder sb = new StringBuilder();
+            for (byte b : messageDigest) {
+                sb.append(String.format("%02x", b));
+            }
+
+            return sb.toString();
+        } catch (Exception e) {
+            log.error("Error generating Cloudinary signature: {}", e.getMessage(), e);
+            throw new RuntimeException("Failed to generate signature: " + e.getMessage());
         }
     }
 
