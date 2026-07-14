@@ -52,23 +52,14 @@ public class CloudinaryService {
             // Build upload URL
             String uploadUrl = "https://api.cloudinary.com/v1_1/" + cloudName + "/image/upload";
 
-            // Create timestamp
-            long timestamp = System.currentTimeMillis() / 1000;
-
-            // Prepare form data with signature
+            // Prepare form data for UNSIGNED upload using upload preset
+            // This is more secure than exposing API key/secret
             MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
             body.add("file", file.getResource());
-            body.add("folder", soilAnalysisFolder);
+            body.add("upload_preset", "soil-analysis-preset"); // Use the preset created in Cloudinary dashboard
             body.add("public_id", generatePublicId(file.getOriginalFilename()));
-            body.add("api_key", apiKey);
-            body.add("timestamp", String.valueOf(timestamp));
 
-            // Generate signature for authenticated upload
-            String signature = generateSignature(soilAnalysisFolder, timestamp);
-            body.add("signature", signature);
-
-            log.debug("Upload params - folder: {}, timestamp: {}, signature: {}",
-                    soilAnalysisFolder, timestamp, signature);
+            log.debug("Uploading to Cloudinary using preset: soil-analysis-preset");
 
             // Set headers
             HttpHeaders headers = new HttpHeaders();
@@ -76,7 +67,7 @@ public class CloudinaryService {
 
             HttpEntity<MultiValueMap<String, Object>> entity = new HttpEntity<>(body, headers);
 
-            // Upload to Cloudinary
+            // Upload to Cloudinary (unsigned request)
             ResponseEntity<String> response = restTemplate.postForEntity(uploadUrl, entity, String.class);
 
             if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
@@ -98,28 +89,6 @@ public class CloudinaryService {
         } catch (Exception e) {
             log.error("Error uploading soil image to Cloudinary: {}", e.getMessage(), e);
             throw new RuntimeException("Failed to upload image to Cloudinary: " + e.getMessage());
-        }
-    }
-
-    private String generateSignature(String folder, long timestamp) {
-        try {
-            // Create signature string: folder=<folder>&timestamp=<timestamp><api_secret>
-            String toSign = "folder=" + folder + "&timestamp=" + timestamp + apiSecret;
-
-            // SHA1 hash
-            MessageDigest md = MessageDigest.getInstance("SHA-1");
-            byte[] messageDigest = md.digest(toSign.getBytes(StandardCharsets.UTF_8));
-
-            // Convert to hex string
-            StringBuilder sb = new StringBuilder();
-            for (byte b : messageDigest) {
-                sb.append(String.format("%02x", b));
-            }
-
-            return sb.toString();
-        } catch (Exception e) {
-            log.error("Error generating Cloudinary signature: {}", e.getMessage(), e);
-            throw new RuntimeException("Failed to generate signature: " + e.getMessage());
         }
     }
 
