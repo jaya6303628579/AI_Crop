@@ -13,12 +13,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -29,29 +25,25 @@ public class SoilAnalysisService {
 
     private final SoilAnalysisRepository soilAnalysisRepository;
     private final GroqAIService groqAIService;
-    private static final String UPLOAD_DIR = "uploads/soil";
+    private final CloudinaryService cloudinaryService;
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
     public SoilAnalysisDTO analyzeSoil(User user, MultipartFile imageFile) throws IOException {
-        // Save the uploaded image
-        String fileName = UUID.randomUUID() + "_" + imageFile.getOriginalFilename();
-        Path uploadPath = Paths.get(UPLOAD_DIR);
+        log.info("Starting soil analysis for user: {} with file: {}", user.getEmail(), imageFile.getOriginalFilename());
 
-        if (!Files.exists(uploadPath)) {
-            Files.createDirectories(uploadPath);
-        }
-
-        String filePath = uploadPath.resolve(fileName).toString();
-        Files.write(Paths.get(filePath), imageFile.getBytes());
+        // Upload image to Cloudinary
+        String imageUrl = cloudinaryService.uploadSoilImage(imageFile);
+        log.info("Image uploaded to Cloudinary: {}", imageUrl);
 
         // Use Groq AI for soil analysis
-        SoilAnalysis soilAnalysis = performAISoilAnalysis(user, fileName, imageFile);
+        SoilAnalysis soilAnalysis = performAISoilAnalysis(user, imageUrl, imageFile);
 
         return convertToDTO(soilAnalysisRepository.save(soilAnalysis));
     }
 
-    private SoilAnalysis performAISoilAnalysis(User user, String fileName, MultipartFile imageFile) {
+    private SoilAnalysis performAISoilAnalysis(User user, String imageUrl, MultipartFile imageFile) {
         try {
+            log.info("Performing AI soil analysis using Groq AI");
             // Call Groq AI to analyze the soil image
             String aiResponse = groqAIService.analyzeSoilImage(imageFile);
             log.info("Groq soil analysis response: {}", aiResponse);
@@ -61,7 +53,7 @@ public class SoilAnalysisService {
 
             SoilAnalysis analysis = SoilAnalysis.builder()
                     .user(user)
-                    .imageUrl(fileName)
+                    .imageUrl(imageUrl)
                     .soilType(parseSoilType(jsonResponse.get("soil_type")))
                     .pH(jsonResponse.has("ph_level") ? jsonResponse.get("ph_level").asDouble() : 6.5)
                     .nitrogen(jsonResponse.has("nitrogen") ? jsonResponse.get("nitrogen").asDouble() : 100.0)
@@ -71,21 +63,21 @@ public class SoilAnalysisService {
                     .texture(parseTexture(jsonResponse.get("texture")))
                     .moisture(jsonResponse.has("moisture_level") ? jsonResponse.get("moisture_level").asDouble() : 20.0)
                     .confidence(jsonResponse.has("confidence_score") ? jsonResponse.get("confidence_score").asDouble() : 75.0)
-                    .analysis(jsonResponse.has("detailed_analysis") ? jsonResponse.get("detailed_analysis").asText() : "Soil analysis completed using Gemini AI")
+                    .analysis(jsonResponse.has("detailed_analysis") ? jsonResponse.get("detailed_analysis").asText() : "Soil analysis completed using Groq AI")
                     .build();
 
             return analysis;
         } catch (Exception e) {
-            log.error("Error during Gemini AI soil analysis", e);
-            // Fallback to default analysis if Gemini fails
-            return createDefaultAnalysis(user, fileName);
+            log.error("Error during Groq AI soil analysis", e);
+            // Fallback to default analysis if Groq fails
+            return createDefaultAnalysis(user, imageUrl);
         }
     }
 
-    private SoilAnalysis createDefaultAnalysis(User user, String fileName) {
+    private SoilAnalysis createDefaultAnalysis(User user, String imageUrl) {
         return SoilAnalysis.builder()
                 .user(user)
-                .imageUrl(fileName)
+                .imageUrl(imageUrl)
                 .soilType(SoilAnalysis.SoilType.LOAMY)
                 .pH(6.8)
                 .nitrogen(250.0)
@@ -95,7 +87,7 @@ public class SoilAnalysisService {
                 .texture(SoilAnalysis.SoilTexture.MEDIUM)
                 .moisture(22.5)
                 .confidence(88.0)
-                .analysis("Soil analysis performed by Gemini AI. Loamy soil with good nutrient content.")
+                .analysis("Soil analysis performed using AI. Loamy soil with good nutrient content.")
                 .build();
     }
 
@@ -146,12 +138,11 @@ public class SoilAnalysisService {
         SoilAnalysis analysis = soilAnalysisRepository.findByIdAndUser(analysisId, user)
                 .orElseThrow(() -> new RuntimeException("Soil analysis not found"));
 
-        // Delete the image file
-        Path imagePath = Paths.get(UPLOAD_DIR).resolve(analysis.getImageUrl());
-        if (Files.exists(imagePath)) {
-            Files.delete(imagePath);
-        }
+        // Delete the image from Cloudinary
+        log.info("Deleting soil image from Cloudinary: {}", analysis.getImageUrl());
+        cloudinaryService.deleteImage(analysis.getImageUrl());
 
         soilAnalysisRepository.delete(analysis);
+        log.info("Soil analysis deleted successfully");
     }
 }
