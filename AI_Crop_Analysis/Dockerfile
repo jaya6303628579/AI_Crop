@@ -9,7 +9,7 @@ FROM eclipse-temurin:17-jre-alpine
 WORKDIR /app
 
 # Copy JAR from builder
-COPY --from=builder /app/AI_Crop_Analysis/target/*.jar app.jar
+COPY --from=builder /app/target/*.jar app.jar
 
 # Expose port
 EXPOSE 8080
